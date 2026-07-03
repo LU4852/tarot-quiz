@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>韋特塔羅牌圖像速記教室 V3 🔮</title>
+    <style>
+        :root {
+            --bg-color: #0f0f1a;
+            --card-bg: #1a1a2e;
+            --panel-bg: #16213e;
+            --accent-color: #f1c40f;
+            --text-color: #e2e8f0;
+            --text-muted: #94a3b8;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --primary-btn: #3498db;
+            --secondary-btn: #e67e22;
+            --story-btn: #9b59b6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: block;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 680px;
+            background-color: var(--card-bg);
+            padding: 35px;
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+            border: 1px solid #252542;
+            text-align: center;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: var(--accent-color);
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .subtitle {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-bottom: 30px;
+        }
+
+        .nav-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px 10px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+
+        .btn-draw { background-color: var(--primary-btn); color: white; }
+        .btn-quiz { background-color: var(--secondary-btn); color: white; }
+        .btn-story { background-color: var(--story-btn); color: white; }
+        .btn-submit { background-color: var(--success-color); color: white; width: 100%; margin-top: 15px; }
+        .btn-reveal { background-color: var(--accent-color); color: #1a1a2e; width: 100%; margin-top: 15px; }
+        
+        button:hover {
+            transform: translateY(-2px);
+            opacity: 0.95;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+
+        .display-board {
+            background-color: var(--panel-bg);
+            padding: 25px;
+            border-radius: 12px;
+            min-height: 220px;
+            text-align: left;
+            line-height: 1.7;
+            margin-bottom: 20px;
+            border-left: 5px solid var(--accent-color);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .tarot-image-container {
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .tarot-img {
+            width: 160px;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+            border: 2px solid var(--accent-color);
+            transition: transform 0.3s ease;
+        }
+
+        .tarot-img.reversed-img {
+            transform: rotate(180deg);
+        }
+
+        .interactive-zone {
+            display: none;
+            margin-top: 20px;
+            background-color: #1f1f3a;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #2d2d54;
+        }
+
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 14px;
+            border-radius: 8px;
+            border: 2px solid #34495e;
+            background-color: var(--bg-color);
+            color: white;
+            font-size: 1.1rem;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        textarea {
+            text-align: left;
+            resize: vertical;
+            font-size: 1rem;
+        }
+
+        input[type="text"]:focus, textarea:focus {
+            border-color: var(--accent-color);
+            outline: none;
+        }
+
+        .highlight { color: var(--accent-color); font-weight: bold; }
+        .upright { color: var(--success-color); font-weight: bold; }
+        .reversed { color: var(--danger-color); font-weight: bold; }
+        
+        .feedback {
+            margin-top: 15px;
+            font-weight: bold;
+            text-align: center;
+            font-size: 1.1rem;
+            min-height: 40px;
+        }
+
+        .divider {
+            border: 0;
+            border-top: 1px solid #2d2d54;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🔮 偉特塔羅 圖像速記互動教室</h1>
+    <div class="subtitle">新增「看圖說故事」模式，全面訓練你的占卜直覺</div>
+    
+    <div class="nav-buttons">
+        <button class="btn-draw" onclick="drawCard()">每日一牌 (抽牌)</button>
+        <button class="btn-quiz" onclick="startQuiz()">圖像聯想測驗</button>
+        <button class="btn-story" onclick="startStoryMode()">看圖說故事 🆕</button>
+    </div>
+
+    <div class="display-board" id="displayBoard">
+        <div style="text-align: center; color: var(--text-muted); padding-top: 20px;">
+            <p style="font-size: 1.1rem; color: var(--accent-color); margin-bottom: 15px;"><strong>【三大新手修練模式】</strong></p>
+            <p style="margin-bottom: 10px;">🏷️ <strong>每日一牌</strong>：看著對應的真圖，快速吸收正逆位核心含意。</p>
+            <p style="margin-bottom: 10px;">🧠 <strong>圖像聯想測驗</strong>：遮蔽圖片，給予視覺特徵盲測你對牌名的記憶。</p>
+            <p style="margin-bottom: 25px;">🎨 <strong>看圖說故事</strong>：只給你看圖片，逼迫你用眼睛觀察細節並試著講述！</p>
+            <p style="font-size: 0.9rem; color: #64748b;">💡 點選上方按鈕開啟你的學習之旅吧！</p>
+        </div>
+    </div>
+
+    <!-- 交互操作區（動態切換內容） -->
+    <div class="interactive-zone" id="interactiveZone">
+        <div id="zoneContent"></div>
+        <div class="feedback" id="feedbackZone"></div>
+    </div>
+</div>
+
+<script>
+    const TAROT_DATA = [
+        {"name": "0. 愚者 (The Fool)", "keyword": "愚者", "img": "https://upload.wikimedia.org/wikipedia/commons/9/90/RWS_Tarot_00_Fool.jpg", "visual": "懸崖邊的年輕人、白色小狗、彩色包袱、手拿白玫瑰", "upright": "開始、冒險、自由、不拘一格、純真、潛力", "reversed": "魯莽、不負責任、逃避、猶豫不決、粗心、流浪"},
+        {"name": "1. 魔術師 (The Magician)", "keyword": "魔術師", "img": "https://upload.wikimedia.org/wikipedia/commons/d/de/RWS_Tarot_01_Magician.jpg", "visual": "桌上的四要素（權杖/聖杯/寶劍/錢幣）、頭頂無限大符號、一手指天一手指地", "upright": "創造力、專注、顯化、資源豐富、行動力、精通", "reversed": "幻覺、欺騙、能力未發揮、走捷徑、懷才不遇、欺詐"},
+        {"name": "2. 女祭司 (The High Priestess)", "keyword": "女祭司", "img": "https://upload.wikimedia.org/wikipedia/commons/8/88/RWS_Tarot_02_High_Priestess.jpg", "visual": "身後黑白雙柱（B與J）、手拿捲軸（TORA）、腳下有一輪新月", "upright": "直覺、潛意識、神祕、內省、靜態等待、智慧", "reversed": "膚淺、忽略直覺、隱藏動機、焦慮、理智失衡、冷漠"},
+        {"name": "3. 皇后 (The Empress)", "keyword": "皇后", "img": "https://upload.wikimedia.org/wikipedia/commons/d/d2/RWS_Tarot_03_Empress.jpg", "visual": "成熟豐腴的女性坐在舒適沙發、前方滿片麥田、森林與瀑布、盾牌上的金星符號", "upright": "豐收、孕育、自然、母愛、富足、感官享受、創造力", "reversed": "過度控制、缺乏安全感、創造力受阻、過度溺愛、家庭衝突"},
+        {"name": "4. 皇帝 (The Emperor)", "keyword": "皇帝", "img": "https://upload.wikimedia.org/wikipedia/commons/c/c3/RWS_Tarot_04_Emperor.jpg", "visual": "嚴肅石椅上的年長國王、身穿紅袍鐵甲、左手持安卡十字架、背景是荒涼紅山", "upright": "權威、結構、穩定、理性、保護、社會秩序、領導力", "reversed": "暴政、嚴苛、缺乏控制、效率低下、暴君傾向、無能"},
+        {"name": "5. 教皇 (The Hierophant)", "keyword": "教皇", "img": "https://upload.wikimedia.org/wikipedia/commons/8/8d/RWS_Tarot_05_Hierophant.jpg", "visual": "三人場景、教皇身穿紅袍戴三重冠、前方有兩位僧侶、地上兩把交叉的黃金鑰匙", "upright": "傳統、體制、精神指引、學習、儀式、尋求認同、同盟", "reversed": "叛逆、打破常規、教條主義、新思維、信譽受損、盲目服從"},
+        {"name": "6. 戀人 (The Lovers)", "keyword": "戀人", "img": "https://upload.wikimedia.org/wikipedia/commons/d/db/RWS_Tarot_06_Lovers.jpg", "visual": "巨大的天使在空中祝福、下方一男一女（亞當與夏娃）、背景有生命之樹與知善惡樹", "upright": "選擇、和諧、伴侶關係、價值觀一致、吸引力、愛情", "reversed": "不合、錯誤的決定、衝突、逃避責任、心意不一、感情失衡"},
+        {"name": "7. 戰車 (The Chariot)", "keyword": "戰車", "img": "https://upload.wikimedia.org/wikipedia/commons/9/9b/RWS_Tarot_07_Chariot.jpg", "visual": "黑白兩隻人面獅身（斯芬克斯）拉車、披星戴月的篷頂、嚴肅握拳的戰士", "upright": "意志力、勝利、前進、克服障礙、自控、野心、決心", "reversed": "失控、失去方向、衝動、侵略性、慘遭挫敗、障礙重重"},
+        {"name": "8. 力量 (Strength)", "keyword": "力量", "img": "https://upload.wikimedia.org/wikipedia/commons/f/f5/RWS_Tarot_08_Strength.jpg", "visual": "溫柔的女性輕撫獅子的下巴、頭頂無限大符號、身穿白衣與花環", "upright": "內在力量、勇氣、耐心、溫柔掌控、同理心、自信", "reversed": "軟弱、恐懼、缺乏自信、自我懷疑、生硬控制、濫用權力"},
+        {"name": "9. 隱士 (The Hermit)", "keyword": "隱士", "img": "https://upload.wikimedia.org/wikipedia/commons/4/4d/RWS_Tarot_09_Hermit.jpg", "visual": "冰山頂上的孤獨老人、手持六角星提燈、另一手握黃金權杖", "upright": "內省、尋求真理、孤獨、指引、精神探索、深思熟慮", "reversed": "孤立、寂寞、偏執、拒絕建議、思想封閉、逃避現實"},
+        {"name": "10. 命運之輪 (Wheel of Fortune)", "keyword": "命運之輪", "img": "https://upload.wikimedia.org/wikipedia/commons/3/3c/RWS_Tarot_10_Wheel_of_Fortune.jpg", "visual": "巨大的圓輪、四角有帶翅膀的生物在看書、輪上有斯芬克斯與蛇", "upright": "好運、轉折點、命運、契機、不可控的變化、因果輪迴", "reversed": "壞運、抗拒改變、壞習慣循環、時機未到、混亂"},
+        {"name": "11. 正義 (Justice)", "keyword": "正義", "img": "https://upload.wikimedia.org/wikipedia/commons/e/e0/RWS_Tarot_11_Justice.jpg", "visual": "端坐的女性、右手持向上寶劍、左手持平衡天秤、紫色帷幕背景", "upright": "公平、正義、真理、因果責任、法律事務、客觀裁決", "reversed": "不公正、偏見、推卸責任、法律訴訟失敗、失衡、偏袒"},
+        {"name": "12. 倒吊人 (The Hanged Man)", "keyword": "倒吊人", "img": "https://upload.wikimedia.org/wikipedia/commons/2/2b/RWS_Tarot_12_Hanged_Man.jpg", "visual": "男子單腳倒吊在T字形十字架上、頭部發出神聖光芒、雙手藏於背後", "upright": "犧牲、換位思考、等待、釋放、奉獻、全新視角", "reversed": "無謂的犧牲、停滯不前、抗拒、拖延、隨波逐流、白費心機"},
+        {"name": "13. 死神 (Death)", "keyword": "死神", "img": "https://upload.wikimedia.org/wikipedia/commons/d/d7/RWS_Tarot_13_Death.jpg", "visual": "骷髏騎士手持黑色骷髏旗、地上有國王與教皇倒下、遠方有黎明曙光與雙塔", "upright": "結束、重大轉變、新生、淘汰、告別過去、破壞與重建", "reversed": "恐懼改變、沉溺過去、停滯、勉強維持、抗拒重生"},
+        {"name": "14. 節制 (Temperance)", "keyword": "節制", "img": "https://upload.wikimedia.org/wikipedia/commons/f/f8/RWS_Tarot_14_Temperance.jpg", "visual": "大天使一腳在水中一腳在陸地、雙手持聖杯並在其中傾倒液體、背景有通往山脈的道路", "upright": "平衡、融合、和諧、淨化、耐心、跨界合作、細水長流", "reversed": "失衡、不和諧、過度浪費、缺乏溝通、無法融合、衝突"},
+        {"name": "15. 惡魔 (The Devil)", "keyword": "惡魔", "img": "https://upload.wikimedia.org/wikipedia/commons/5/55/RWS_Tarot_15_Devil.jpg", "visual": "有翅膀的羊頭惡魔、下方鎖鏈圈住一男一女、男女長出犄角與尾巴", "upright": "束縛、慾望、物質主義、成癮、陰暗面、執著、誘惑", "reversed": "覺醒、重獲自由、打破束縛、克服成癮、告別物質奴役"},
+        {"name": "16. 高塔 (The Tower)", "keyword": "高塔", "img": "https://upload.wikimedia.org/wikipedia/commons/5/53/RWS_Tarot_16_Tower.jpg", "visual": "雷電擊中高塔頂端的皇冠、高塔起火、兩個人從高空墜落、背景一片黑暗", "upright": "突變、震驚、幻滅、崩潰、意外改變、打破傲慢、釋放", "reversed": "避開災難、延緩崩潰、內心風暴、恐懼危機、拒絕面對現實"},
+        {"name": "17. 星星 (The Star)", "keyword": "星星", "img": "https://upload.wikimedia.org/wikipedia/commons/d/db/RWS_Tarot_17_Star.jpg", "visual": "裸女雙膝著地、手持兩個水瓶往陸地與水中倒水、頭頂有巨大的八角星與七顆小星", "upright": "希望、祝福、療癒、靈感、寧靜、光明前景、樂觀", "reversed": "失望、缺乏信仰、焦慮、靈感枯竭、不切實際的幻想"},
+        {"name": "18. 月亮 (The Moon)", "keyword": "月亮", "img": "https://upload.wikimedia.org/wikipedia/commons/7/7f/RWS_Tarot_18_Moon.jpg", "visual": "天空中哭泣的月亮、地面有一隻狗與一隻狼對月咆哮、一隻龍蝦從水池中爬出", "upright": "不安、恐懼、幻覺、隱瞞、潛意識浮現、迷茫、直覺啟示", "reversed": "真相大白、解除誤會、恐懼消散、走出迷霧、直覺敏銳"},
+        {"name": "19. 太陽 (The Sun)", "keyword": "太陽", "img": "https://upload.wikimedia.org/wikipedia/commons/1/17/RWS_Tarot_19_Sun.jpg", "visual": "快樂的裸體小孩騎在白馬上、手舉紅色大旗、背景是向日葵與金色圍牆", "upright": "成功、快樂、活力、自信、光明、真相、新生、豐盛", "reversed": "短暫的挫折、熱情消退、過度自信、虛榮、缺乏活力"},
+        {"name": "20. 審判 (The Judgement)", "keyword": "審判", "img": "https://upload.wikimedia.org/wikipedia/commons/d/dd/RWS_Tarot_20_Judgement.jpg", "visual": "大天使在雲端吹響號角、號角上有十字旗、地面上許多人從棺材中甦醒並歡呼", "upright": "召喚、覺醒、重大決定、重生、因果清算、回顧與檢討", "reversed": "拒絕召喚、自我懷疑、錯失良機、拖延決策、不願面對過去"},
+        {"name": "21. 世界 (The World)", "keyword": "世界", "img": "https://upload.wikimedia.org/wikipedia/commons/f/ff/RWS_Tarot_21_World.jpg", "visual": "舞者身披紫色絲帶在綠色桂冠圈內跳舞、四角分別是人、鷹、牛、獅的頭像", "upright": "完成、圓滿、成功、旅行、圓滿結局、融合、達到目標", "reversed": "未完成、延遲、缺乏成果、功虧一簣、停滯不前、眼高手低"}
+    ];
+
+    let currentCard = null;
+
+    // 模式一：隨機抽牌
+    function drawCard() {
+        document.getElementById('interactiveZone').style.display = 'none'; 
+        
+        const card = TAROT_DATA[Math.floor(Math.random() * TAROT_DATA.length)];
+        const isUpright = Math.random() > 0.5;
+        const orientation = isUpright ? "正位" : "逆位";
+        const keywordClass = isUpright ? "upright" : "reversed";
+        const imgClass = isUpright ? "tarot-img" : "tarot-img reversed-img";
+        const keywords = isUpright ? card.upright : card.reversed;
+
+        const htmlContent = `
+            <div style="text-align:center;">
+                <h3 style="margin-top:0; font-size:1.3rem;">🔮 抽出牌卡：<span class="highlight">${card.name}</span> (${orientation})</h3>
+                <div class="tarot-image-container">
+                    <img src="${card.img}" alt="${card.name}" class="${imgClass}">
+                </div>
+                <hr class="divider">
+                <p style="margin-bottom: 12px;"><strong>👁️ 牌面核心視覺：</strong><br><span style="color:#67e8f9">${card.visual}</span></p>
+                <p><strong>💡 核心牌義 (<span class="${keywordClass}">${orientation}</span>)：</strong><br>${keywords}</p>
+                <hr class="divider">
+                <p style="font-size: 0.9rem; color: var(--text-muted); line-height:1.5;">
+                    <em>💡 實戰聯想：對照卡牌影像，找出對應的細節物件，這能大幅加深你的視覺記憶。</em>
+                </p>
+            </div>
+        `;
+        document.getElementById('displayBoard').innerHTML = htmlContent;
+    }
+
+    // 模式二：圖像聯想測驗 (猜牌名)
+    function startQuiz() {
+        currentCard = TAROT_DATA[Math.floor(Math.random() * TAROT_DATA.length)];
+        
+        const htmlContent = `
+            <h3 style="margin-top:0; color: var(--accent-color); font-size:1.3rem; text-align:center;">📝 偉特圖像聯想測驗</h3>
+            <p style="margin-top: 10px; text-align:center; color:var(--text-muted);">請觀察以下【牌面視覺暗示】，猜猜它是哪張牌？</p>
+            <div style="background-color: var(--bg-color); padding: 18px; border-radius: 8px; font-size: 1.1rem; border: 1px dashed var(--accent-color); margin: 18px 0; text-align:center;">
+                <strong>「 ${currentCard.visual} 」</strong>
+            </div>
+        `;
+        document.getElementById('displayBoard').innerHTML = htmlContent;
+        
+        // 渲染交互區
+        document.getElementById('zoneContent').innerHTML = `
+            <input type="text" id="userAnswer" placeholder="輸入牌名關鍵字 (例如: 愚者、魔術師...)" onkeyup="if(event.keyCode===13) checkAnswer()">
+            <button class="btn-submit" onclick="checkAnswer()">提交答案</button>
+        `;
+        document.getElementById('interactiveZone').style.display = 'block';
+        document.getElementById('feedbackZone').innerHTML = '';
+        document.getElementById('userAnswer').focus();
+    }
+
+    function checkAnswer() {
+        const userAns = document.getElementById('userAnswer').value.trim();
+        const feedbackZone = document.getElementById('feedbackZone');
+        if (!userAns) return;
+
+        if (currentCard.name.includes(userAns) && userAns.length >= 1) {
+            feedbackZone.innerHTML = `<span style="color:var(--success-color)">🎉 太棒了！完全答對！</span><br>
+                                      <small style="color:var(--text-muted); font-size:0.95rem;">這張牌是：${currentCard.name}<br>正位含意：${currentCard.upright}</small>`;
+            setTimeout(startQuiz, 2500);
+        } else {
+            feedbackZone.innerHTML = `<span style="color:var(--danger-color)">❌ 再接再厲！看漏了什麼線索嗎？</span><br>
+                                      <small style="color:var(--text-muted); font-size:0.95rem;">正確答案是：<span class="highlight">${currentCard.name}</span></small>`;
+            setTimeout(startQuiz, 3200);
+        }
+    }
+
+    // 模式三：看圖說故事
+    function startStoryMode() {
+        currentCard = TAROT_DATA[Math.floor(Math.random() * TAROT_DATA.length)];
+        
+        const htmlContent = `
+            <h3 style="margin-top:0; color: var(--story-btn); font-size:1.3rem; text-align:center;">🎨 看圖說故事 (直覺訓練)</h3>
+            <p style="margin-top: 5px; text-align:center; color:var(--text-muted);">眼前這張神祕牌面，你看到了什麼？</p>
+            <div class="tarot-image-container">
+                <img src="${currentCard.img}" alt="猜猜我是誰" class="tarot-img" style="border-color: var(--story-btn);">
+            </div>
+            <p style="text-align:center; font-size:0.9rem; color: #a8a8b3;"><em>⚠️ 請先仔細凝視圖片，不要急著看答案。</em></p>
+        `;
+        document.getElementById('displayBoard').innerHTML = htmlContent;
+
+        // 渲染交互區
+        document.getElementById('zoneContent').innerHTML = `
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 8px; text-align:left;">
+                ✍️ <strong>思考引導練習：</strong>這張圖的主角是誰？他身處什麼環境？有什麼關鍵道具？他在做什麼？這帶給你什麼感覺？（可在下方輸入筆記）
+            </p>
+            <textarea id="storyNotes" rows="3" placeholder="試著寫下或在心中描述你看到的畫面與感受..."></textarea>
+            <button class="btn-reveal" onclick="revealStoryAnswer()">公布牌面真相與核心秘密</button>
+        `;
+        document.getElementById('interactiveZone').style.display = 'block';
+        document.getElementById('feedbackZone').innerHTML = '';
+    }
+
+    function revealStoryAnswer() {
+        const feedbackZone = document.getElementById('feedbackZone');
+        
+        const htmlReveal = `
+            <div style="text-align:left; background-color: rgba(241, 196, 15, 0.1); padding: 15px; border-radius: 8px; border: 1px solid var(--accent-color); margin-top:15px; font-size:0.95rem; line-height:1.6;">
+                <p style="font-size:1.1rem; margin-bottom:5px;"><strong class="highlight">✨ 這張牌是：${currentCard.name}</strong></p>
+                <p><strong>👁️ 經典大師留下的牌面細節：</strong><br><span style="color:#67e8f9">${currentCard.visual}</span></p>
+                <p style="margin-top:5px;"><strong>💡 核心正位義：</strong>${currentCard.upright}</p>
+                <p><strong>💡 核心逆位義：</strong>${currentCard.reversed}</p>
+            </div>
+            <button class="btn-story" style="margin-top:15px;" onclick="startStoryMode()">下一張挑戰</button>
+        `;
+        feedbackZone.innerHTML = htmlReveal;
+        document.getElementById('interactiveZone').scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+</script>
+
+</body>
+</html>
