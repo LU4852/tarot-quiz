@@ -186,12 +186,12 @@
             margin-top: 25px;
         }
 
-        /* 1. 三張牌 (橫向等寬) */
+        /* 1. 三張牌 - 聖三角 (橫向等寬) */
         .spread-layout-3 {
             grid-template-columns: repeat(3, 1fr);
         }
 
-        /* 2. 四張牌 (十字型 3x3) */
+        /* 2. 四張牌 - 直指核心 (十字型 3x3) */
         .spread-layout-4 {
             grid-template-columns: repeat(3, 1fr);
             grid-template-rows: auto auto;
@@ -201,7 +201,7 @@
         .spread-layout-4 .pos-2 { grid-column: 2; grid-row: 1; } /* 建議對策 (上方) */
         .spread-layout-4 .pos-3 { grid-column: 3; grid-row: 2; } /* 擁有資源 */
 
-        /* 3. 五張牌 (Y字二選一 3x3) */
+        /* 3. 五張牌 - 二選一 (Y字二選一 3x3) */
         .spread-layout-5-choice {
             grid-template-columns: repeat(3, 1fr);
             grid-template-rows: auto auto auto;
@@ -212,7 +212,7 @@
         .spread-layout-5-choice .pos-3 { grid-column: 3; grid-row: 1; } /* B 的結果 (右上) */
         .spread-layout-5-choice .pos-4 { grid-column: 2; grid-row: 3; } /* 當事人 (中下) */
 
-        /* 4. 五張牌 (感情 3x2) */
+        /* 4. 五張牌 - 感情萬用 (雙人對稱 3x2) */
         .spread-layout-5-love {
             grid-template-columns: repeat(3, 1fr);
             grid-template-rows: auto auto;
@@ -266,13 +266,13 @@
 
 <div class="container">
     <h1>🔮 AI實作範例：塔羅新手教學</h1>
-    <div class="subtitle">新增「5大萬用牌陣」模擬模組，全面訓練你的占卜脈絡</div>
+    <div class="subtitle">新增「4大萬用牌陣」模擬模組，全面訓練你的占卜脈絡</div>
     
     <div class="nav-buttons">
         <button class="btn-draw" onclick="drawCard()">每日一牌 (抽牌)</button>
         <button class="btn-quiz" onclick="startQuiz()">圖像聯想測驗</button>
         <button class="btn-story" onclick="startStoryMode()">看圖說故事</button>
-        <button class="btn-spread" onclick="startSpreadMode()">5大牌陣模擬 🆕</button>
+        <button class="btn-spread" onclick="startSpreadMode()">4大牌陣模擬 🆕</button>
     </div>
 
     <div class="display-board" id="displayBoard">
@@ -281,7 +281,7 @@
             <p style="margin-bottom: 10px;">🏷️ <strong>每日一牌</strong>：看著對應的真圖，快速吸收正逆位核心含意。</p>
             <p style="margin-bottom: 10px;">🧠 <strong>圖像聯想測驗</strong>：遮蔽圖片，盲測你對畫面視覺特徵的記憶。</p>
             <p style="margin-bottom: 10px;">🎨 <strong>看圖說故事</strong>：只看圖片細節，逼迫自己用直覺連結生命故事。</p>
-            <p style="margin-bottom: 25px;">📐 <strong>5大牌陣模擬</strong>：掌握「一蘿蔔一坑」心法，實際抽牌並理解各位置含意！</p>
+            <p style="margin-bottom: 25px;">📐 <strong>4大牌陣模擬</strong>：掌握「一蘿蔔一坑」心法，實際抽牌並理解各位置含意！</p>
             <p style="font-size: 0.9rem; color: #64748b;">💡 點選上方按鈕開啟你的學習與占卜之旅吧！</p>
         </div>
     </div>
@@ -315,20 +315,15 @@
         {"name": "17. 星星 (The Star)", "keyword": "星星", "img": "https://upload.wikimedia.org/wikipedia/commons/d/db/RWS_Tarot_17_Star.jpg", "visual": "裸女雙膝著地、手持兩個水瓶往陸地與水中倒水、頭頂有巨大的八角星與七顆小星", "upright": "希望、祝福、療癒、靈感、寧靜、光明前景、樂觀", "reversed": "失望、缺乏信仰、焦慮、靈感枯竭、不切實際的幻想"},
         {"name": "18. 月亮 (The Moon)", "keyword": "月亮", "img": "https://upload.wikimedia.org/wikipedia/commons/7/7f/RWS_Tarot_18_Moon.jpg", "visual": "天空中哭泣的月亮、地面有一隻狗與一隻狼對月咆哮、一隻龍蝦從水池中爬出", "upright": "不安、恐懼、幻覺、隱瞞、潛意識浮現、迷茫、直覺啟示", "reversed": "真相大白、解除誤會、恐懼消散、走出迷霧、直覺敏銳"},
         {"name": "19. 太陽 (The Sun)", "keyword": "太陽", "img": "https://upload.wikimedia.org/wikipedia/commons/1/17/RWS_Tarot_19_Sun.jpg", "visual": "快樂的裸體小孩騎在白馬上、手舉紅色大旗、背景是向日葵與金色圍牆", "upright": "成功、快樂、活力、自信、光明、真相、新生、豐盛", "reversed": "短暫的挫折、熱情消退、過度自信、虛榮、缺乏活力"},
-        {"name": "20. 審判 (The Judgement)", "keyword": "審判", "img": "https://upload.wikimedia.org/wikipedia/commons/d/dd/RWS_Tarot_20_Judgement.jpg", "visual": "大天使在雲端吹響號角、號角上有十字旗、地面上許多人從棺材中甦醒並歡呼", "upright": "召喚、覺醒、重大決定、重生、因果清算、回顧與檢討", "reversed": "拒絕召喚、自我懷疑、錯失良機、拖延決策、不願面對過去"},
+        {"name": "20. 審判 (The Judgement)", "keyword": "審判", "img": "https://upload.wikimedia.org/wikipedia/commons/d/dd/RWS_Tarot_20_Judgement.jpg", "visual": "大天使在雲端吹響號角、號角上有十字旗、地面上許多人從棺材中甦醒並歡呼", "upright": "召喚、開悟、重大決定、重生、因果清算、回顧與檢討", "reversed": "拒絕召喚、自我懷疑、錯失良機、拖延決策、不願面對過去"},
         {"name": "21. 世界 (The World)", "keyword": "世界", "img": "https://upload.wikimedia.org/wikipedia/commons/f/ff/RWS_Tarot_21_World.jpg", "visual": "舞者身披紫色絲帶在綠色桂冠圈內跳舞、四角分別是人、鷹、牛、獅的頭像", "upright": "完成、圓滿、成功、旅行、圓滿結局、融合、達到目標", "reversed": "未完成、延遲、缺乏成果、功虧一簣、停滯不前、眼高手低"}
     ];
 
+    // 已將時間之流移除，只保留4大萬用牌陣
     const SPREADS = {
-        "time": {
-            "name": "三張牌｜時間之流牌陣",
-            "desc": "適合看清事情演變脈絡的百搭牌陣。",
-            "class": "spread-layout-3",
-            "positions": ["➊ 過去的狀態", "➋ 現在的狀態", "➌ 未來的發展"]
-        },
         "triangle": {
             "name": "三張牌｜聖三角牌陣",
-            "desc": "適合用來找出自己的盲點與事情真相。",
+            "desc": "適合用來找出自己的盲點與事情真相，分析「我以為的、真實的與其建言」。",
             "class": "spread-layout-3",
             "positions": ["➊ 我以為的狀態", "➋ 真實的狀態", "➌ 牌卡給予的建言"]
         },
@@ -449,7 +444,7 @@
         feedbackZone.innerHTML = htmlReveal;
     }
 
-    // 🆕 模式四：5大牌陣模擬模組（擬真空間排版更新版）
+    // 🆕 模式四：4大牌陣模擬模組（已徹底移除時間之流）
     function startSpreadMode() {
         document.getElementById('interactiveZone').style.display = 'none';
 
@@ -459,7 +454,7 @@
         }
 
         const htmlContent = `
-            <h3 style="margin-top:0; color: var(--spread-btn); font-size:1.3rem; text-align:center;">📐 AI實作範例：5 大萬用牌陣模擬</h3>
+            <h3 style="margin-top:0; color: var(--spread-btn); font-size:1.3rem; text-align:center;">📐 AI實作範例：4 大萬用牌陣模擬</h3>
             <p style="margin-top: 5px; text-align:center; color:var(--text-muted); margin-bottom: 15px;">「一個蘿蔔一個坑」，先選定牌陣，然後抽牌吧！</p>
             
             <div style="max-width: 400px; margin: 0 auto 20px auto;">
@@ -467,7 +462,7 @@
                     ${optionsHtml}
                 </select>
                 <p id="spreadDesc" style="color: var(--text-muted); font-size: 0.9rem; text-align: center; min-height: 40px;">
-                    ${SPREADS['time'].desc}
+                    ${SPREADS['triangle'].desc}
                 </p>
             </div>
 
@@ -492,7 +487,7 @@
         const resultsContainer = document.getElementById('spreadResults');
         resultsContainer.innerHTML = '';
 
-        // 重置並套用此牌陣專屬的 CSS Grid 佈局類別
+        // 重置並套用此牌陣專屬的 CSS Grid 類別
         resultsContainer.className = `spread-grid ${spread.class}`;
 
         // 隨機抽牌，且牌不能重複
