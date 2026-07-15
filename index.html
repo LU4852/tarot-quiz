@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>塔羅牌陣模擬教室</title>
+    <title>AI實作範例：塔羅新手教學</title>
     <style>
         :root {
             --primary-color: #4a154b;
             --secondary-color: #611f69;
             --accent-color: #e0a96d;
             --bg-color: #1a1a2e;
-            --card-width: 100px;
-            --card-height: 170px;
+            --card-width: 95px;
+            --card-height: 160px;
         }
 
         * {
@@ -104,6 +104,9 @@
             padding: 10px 20px;
             border-radius: 5px;
             font-weight: bold;
+            cursor: pointer;
+            color: white;
+            transition: background 0.2s;
         }
 
         .btn-action:hover {
@@ -113,7 +116,7 @@
         /* 牌陣模擬畫布 */
         .tabletop {
             width: 100%;
-            height: 550px;
+            height: 600px;
             background: radial-gradient(circle, #2c163f 0%, #12071f 100%);
             border-radius: 15px;
             border: 2px solid var(--accent-color);
@@ -127,7 +130,7 @@
             position: absolute;
             width: var(--card-width);
             height: var(--card-height);
-            border: 2px dashed rgba(224, 169, 109, 0.3);
+            border: 2px dashed rgba(224, 169, 109, 0.35);
             border-radius: 8px;
             transform: translate(-50%, -50%);
             display: flex;
@@ -142,10 +145,12 @@
             font-size: 0.75rem;
             color: var(--accent-color);
             text-align: center;
-            background: rgba(26, 26, 46, 0.8);
-            padding: 2px 6px;
+            background: rgba(26, 26, 46, 0.9);
+            padding: 4px 6px;
             border-radius: 4px;
             margin-top: 5px;
+            border: 1px solid rgba(224, 169, 109, 0.2);
+            white-space: nowrap;
         }
 
         /* 塔羅牌主體 */
@@ -179,9 +184,17 @@
             transform: rotateY(180deg);
         }
 
-        /* 逆位狀態 - 作用在卡片外層以防干擾翻轉 3D */
+        /* 逆位狀態 - 作用在卡片外層 */
         .card.reversed {
             transform: rotate(180deg);
+        }
+
+        /* 處理塞爾特十字第2張牌（橫跨在第1張牌上）的旋轉與逆位疊加效果 */
+        .card.cross-overlap {
+            transform: rotate(90deg);
+        }
+        .card.cross-overlap.reversed {
+            transform: rotate(270deg);
         }
 
         .card-face {
@@ -207,8 +220,8 @@
         }
 
         .card-back-pattern {
-            width: 80%;
-            height: 80%;
+            width: 85%;
+            height: 85%;
             border: 1px dashed rgba(224, 169, 109, 0.5);
             border-radius: 6px;
             display: flex;
@@ -233,28 +246,34 @@
 
         .card-illustration {
             font-size: 2.2rem;
-            margin: 10px 0;
+            margin: 5px 0;
         }
 
         /* 關鍵字顯示區域：高對比度、防遮蔽 */
         .keyword-tag {
-            background-color: rgba(0, 0, 0, 0.85); /* 深色背景確保文字突出 */
+            background-color: rgba(0, 0, 0, 0.88);
             color: #fff;
             font-size: 0.75rem;
             font-weight: bold;
             padding: 4px 6px;
             border-radius: 4px;
             text-align: center;
-            width: 90%;
+            width: 95%;
             word-wrap: break-word;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            z-index: 10; /* 確保不被牌面其他圖形元件遮蔽 */
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            z-index: 10;
         }
 
-        /* 當整張牌逆位時，讓關鍵字文字再次反轉 180 度，使其對使用者來說依然是正的 */
+        /* 當卡牌旋轉（逆位或橫置）時，反向修正關鍵字的角度，確保文字永遠水平可讀 */
         .card.reversed .keyword-tag {
             transform: rotate(180deg);
+        }
+        .card.cross-overlap .keyword-tag {
+            transform: rotate(-90deg);
+        }
+        .card.cross-overlap.reversed .keyword-tag {
+            transform: rotate(-270deg);
         }
 
         /* 底部資訊板 */
@@ -271,19 +290,23 @@
         /* 響應式微調 */
         @media (max-width: 768px) {
             :root {
-                --card-width: 80px;
-                --card-height: 136px;
+                --card-width: 70px;
+                --card-height: 120px;
             }
             .tabletop {
-                height: 480px;
+                height: 520px;
             }
             .card-illustration {
-                font-size: 1.8rem;
+                font-size: 1.5rem;
             }
             .card-title {
-                font-size: 0.7rem;
+                font-size: 0.65rem;
             }
             .keyword-tag {
+                font-size: 0.65rem;
+                padding: 2px 4px;
+            }
+            .slot-label {
                 font-size: 0.65rem;
                 padding: 2px 4px;
             }
@@ -293,16 +316,16 @@
 <body>
 
     <header>
-        <h1>塔羅牌陣模擬教室</h1>
+        <h1>AI實作範例：塔羅新手教學</h1>
     </header>
 
     <div class="container">
         <!-- 頂部控制面板 -->
         <div class="control-panel">
             <div class="spread-selector">
-                <button class="btn active" onclick="selectSpread('free')">自由排置</button>
-                <button class="btn" onclick="selectSpread('one')">單牌占卜</button>
-                <button class="btn" onclick="selectSpread('three')">時間流 (三牌)</button>
+                <button class="btn active" onclick="selectSpread('free')">自由自選</button>
+                <button class="btn" onclick="selectSpread('one')">單牌直覺</button>
+                <button class="btn" onclick="selectSpread('three')">聖三角 (時間流)</button>
                 <button class="btn" onclick="selectSpread('choices')">二選一牌陣</button>
                 <button class="btn" onclick="selectSpread('cross')">塞爾特十字</button>
             </div>
@@ -317,12 +340,12 @@
 
         <!-- 說明與解讀資訊 -->
         <div id="info-panel" class="info-panel">
-            💡 <strong>使用說明：</strong>請先點選上方欲模擬的「牌陣類型」，再按下「洗牌開局」。你可以自由拖曳卡牌位置，點擊卡牌即可完成「翻牌」與「查看關鍵字」。雙擊卡牌則可手動切換「正位/逆位」。
+            💡 <strong>使用說明：</strong>請點選上方欲模擬的「牌陣類型」，再按下「洗牌開局」。點擊卡牌即可「翻牌」，雙擊卡牌切換「正位/逆位」。卡牌均可自由拖曳。
         </div>
     </div>
 
     <script>
-        // 78張偉特塔羅牌資料結構（精簡大阿爾克那與小阿爾克那代表作，含防遮蔽關鍵字）
+        // 大阿爾克那經典卡牌資料
         const tarotDeck = [
             { id: 0, name: "愚者", symbol: "🃏", keyword: "冒險、全新開始、自由" },
             { id: 1, name: "魔術師", symbol: "🧙‍♂️", keyword: "創造力、專注、主動" },
@@ -348,33 +371,35 @@
             { id: 21, name: "世界", symbol: "🌍", keyword: "圓滿、達成、旅程終點" }
         ];
 
-        // 牌陣配置座標系統 (X%, Y% 方便自適應螢幕)
+        // 牌陣配置座標與正統含意 (X%, Y% 絕對精準定位)
         const spreads = {
             free: [],
             one: [
-                { name: "單牌核心解讀", x: 50, y: 50 }
+                { name: "核心解答", x: 50, y: 50 }
             ],
-            three: [
-                { name: "過去 (時間流)", x: 25, y: 50 },
-                { name: "現在 (時間流)", x: 50, y: 50 },
-                { name: "未來 (時間流)", x: 75, y: 50 }
+            three: [ // 正統倒三角形聖三角
+                { name: "1. 過去 (左上)", x: 30, y: 35 },
+                { name: "2. 現在 (右上)", x: 70, y: 35 },
+                { name: "3. 未來 (下方)", x: 50, y: 70 }
             ],
-            choices: [
-                { name: "現況/問題", x: 50, y: 35 },
-                { name: "選擇 A 的路徑", x: 25, y: 65 },
-                { name: "選擇 B 的路徑", x: 75, y: 65 }
+            choices: [ // 分叉選擇牌陣
+                { name: "1. 現狀/問題", x: 50, y: 75 },
+                { name: "2. 選擇A現狀", x: 25, y: 45 },
+                { name: "3. 選擇A未來結果", x: 25, y: 15 },
+                { name: "4. 選擇B現狀", x: 75, y: 45 },
+                { name: "5. 選擇B未來結果", x: 75, y: 15 }
             ],
-            cross: [
-                { name: "1. 當前核心", x: 50, y: 50 },
-                { name: "2. 障礙阻力(橫跨)", x: 50, y: 50, rot: 90 }, // 塞爾特十字的橫跨牌
-                { name: "3. 潛意識根基", x: 50, y: 80 },
-                { name: "4. 過去影響", x: 20, y: 50 },
-                { name: "5. 目標與意識", x: 50, y: 20 },
-                { name: "6. 即將來臨", x: 80, y: 50 },
-                { name: "7. 自身態度", x: 93, y: 80 },
-                { name: "8. 外界環境", x: 93, y: 60 },
-                { name: "9. 希望與恐懼", x: 93, y: 40 },
-                { name: "10. 最終結果", x: 93, y: 20 }
+            cross: [ // 標準塞爾特十字
+                { name: "1. 當前處境(中心)", x: 40, y: 50 },
+                { name: "2. 面臨障礙(橫跨)", x: 40, y: 50, special: "overlap" }, // 疊在第1張上
+                { name: "3. 目標/意識層", x: 40, y: 15 },
+                { name: "4. 潛意識根基", x: 40, y: 85 },
+                { name: "5. 過去影響", x: 18, y: 50 },
+                { name: "6. 即將到來", x: 62, y: 50 },
+                { name: "7. 自身狀況", x: 85, y: 85 },
+                { name: "8. 外界環境", x: 85, y: 62 },
+                { name: "9. 希望與恐懼", x: 85, y: 38 },
+                { name: "10. 最終結果", x: 85, y: 15 }
             ]
         };
 
@@ -382,21 +407,16 @@
         const tabletop = document.getElementById('tabletop');
         const infoPanel = document.getElementById('info-panel');
 
-        // 切換牌陣
         function selectSpread(type) {
             currentSpread = type;
             document.querySelectorAll('.spread-selector .btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
-            
-            // 重新繪製定位虛線框
             drawSlots();
         }
 
-        // 繪製定位框
+        // 渲染底板虛線框與標籤
         function drawSlots() {
-            // 清空舊的虛線框
             document.querySelectorAll('.card-slot').forEach(slot => slot.remove());
-            
             const config = spreads[currentSpread];
             if (!config) return;
 
@@ -406,8 +426,9 @@
                 slot.style.left = `${item.x}%`;
                 slot.style.top = `${item.y}%`;
                 
-                if (item.rot) {
-                    slot.style.transform = `translate(-50%, -50%) rotate(${item.rot}deg)`;
+                // 塞爾特十字第二張特殊處理
+                if (item.special === "overlap") {
+                    slot.style.transform = `translate(-50%, -50%) rotate(90deg)`;
                 }
 
                 const label = document.createElement('div');
@@ -419,50 +440,60 @@
             });
         }
 
-        // 清空桌面
         function resetTable() {
             document.querySelectorAll('.card').forEach(card => card.remove());
-            infoPanel.innerHTML = '🔮 桌面已清空。選擇牌陣後，點擊「洗牌開局」即可進行占卜。';
+            infoPanel.innerHTML = '🔮 桌面已清空。選擇預定牌陣後，點擊「洗牌開局」即可進行占卜。';
         }
 
-        // 發牌邏輯
+        // 進行洗牌發牌
         function dealCards() {
             resetTable();
             drawSlots();
 
-            // 複製並洗牌
             const shuffled = [...tarotDeck].sort(() => Math.random() - 0.5);
             const config = spreads[currentSpread];
 
             if (currentSpread === 'free' || !config || config.length === 0) {
-                // 自由模式：預設在中間發 3 張疊著讓使用者自己拖
+                // 自由模式隨機落點
                 for (let i = 0; i < 5; i++) {
-                    createCard(shuffled[i], 35 + (i * 8), 40);
+                    createCard(shuffled[i], 30 + (i * 10), 45);
                 }
-                infoPanel.innerHTML = '🔮 已在桌面發出 5 張卡牌。你可以自由拖曳到任何地方，並點擊牌面翻開。';
+                infoPanel.innerHTML = '🔮 已預發 5 張卡牌。你可以自由拖曳至任何位置，並自訂牌陣。';
             } else {
-                // 牌陣模式：依照定位發牌
+                // 按預定牌陣之固定位置發牌
                 config.forEach((slotInfo, index) => {
                     if (shuffled[index]) {
-                        const isReversed = Math.random() > 0.7; // 30% 機率逆位
-                        createCard(shuffled[index], slotInfo.x, slotInfo.y, isReversed, slotInfo.rot || 0, slotInfo.name);
+                        const isReversed = Math.random() > 0.75; // 25% 隨機逆位率
+                        createCard(
+                            shuffled[index], 
+                            slotInfo.x, 
+                            slotInfo.y, 
+                            isReversed, 
+                            slotInfo.special === "overlap", 
+                            slotInfo.name
+                        );
                     }
                 });
-                infoPanel.innerHTML = `🔮 <b>${document.querySelector('.spread-selector .btn.active').innerText}</b> 已部署完畢。點選牌背即可翻牌，雙擊可逆位微調。`;
+                infoPanel.innerHTML = `🔮 <b>${document.querySelector('.spread-selector .btn.active').innerText}</b> 已依照既定位置發牌完畢。點擊卡牌翻開，雙擊可逆位微調。`;
             }
         }
 
-        // 創建卡牌 DOM 節點
-        function createCard(data, xPercent, yPercent, isReversed = false, extraRotation = 0, slotName = '') {
+        // 建立卡牌 DOM 元素
+        function createCard(data, xPercent, yPercent, isReversed = false, isOverlap = false, slotName = '') {
             const card = document.createElement('div');
             card.className = 'card';
-            if (isReversed) card.classList.add('reversed');
             
-            // 計算實際定位
+            // 塞爾特十字第二張牌特殊橫放樣式處理
+            if (isOverlap) {
+                card.classList.add('cross-overlap');
+            }
+            if (isReversed) {
+                card.classList.add('reversed');
+            }
+            
             card.style.left = `calc(${xPercent}% - (var(--card-width) / 2))`;
             card.style.top = `calc(${yPercent}% - (var(--card-height) / 2))`;
 
-            // 內部 3D 翻轉結構
             const inner = document.createElement('div');
             inner.className = 'card-inner';
             
@@ -471,7 +502,7 @@
             back.className = 'card-face card-back';
             back.innerHTML = `<div class="card-back-pattern">✨</div>`;
             
-            // 牌面（防遮蔽關鍵字加載）
+            // 牌面與防遮蔽關鍵字
             const front = document.createElement('div');
             front.className = 'card-face card-front';
             front.innerHTML = `
@@ -485,9 +516,8 @@
             card.appendChild(inner);
             tabletop.appendChild(card);
 
-            // 綁定事件：單擊翻牌
-            card.addEventListener('click', (e) => {
-                // 如果是在拖曳後釋放，防觸發單擊
+            // 單擊事件：翻牌
+            card.addEventListener('click', () => {
                 if (card.dataset.dragging === 'true') return;
                 
                 card.classList.toggle('flipped');
@@ -499,21 +529,19 @@
                 }
             });
 
-            // 雙擊旋轉 180 度 (切換正逆位)
-            card.addEventListener('dblclick', (e) => {
+            // 雙擊事件：旋轉 180 度（正/逆位）
+            card.addEventListener('dblclick', () => {
                 card.classList.toggle('reversed');
                 const stateText = card.classList.contains('reversed') ? '逆位' : '正位';
-                infoPanel.innerHTML = `🔄 <b>已手動旋轉牌面</b>：${data.name} 切換為 <strong>${stateText}</strong>。`;
+                infoPanel.innerHTML = `🔄 <b>已變更正逆位</b>：${data.name} 切換為 <strong>${stateText}</strong>。`;
             });
 
-            // 拖曳功能
             enableDrag(card);
         }
 
-        // 拖曳實現（滑鼠與觸控相容）
+        // 拖曳模組（支援行動裝置觸控）
         function enableDrag(elm) {
             let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-            
             elm.onmousedown = dragMouseDown;
             elm.addEventListener('touchstart', dragTouchStart, { passive: false });
 
@@ -525,7 +553,7 @@
                 pos4 = e.clientY;
                 document.onmouseup = closeDragElement;
                 document.onmousemove = elementDrag;
-                elm.style.zIndex = 100; // 拖曳中的卡牌置頂
+                elm.style.zIndex = 100;
             }
 
             function elementDrag(e) {
@@ -535,13 +563,8 @@
                 pos2 = pos4 - e.clientY;
                 pos3 = e.clientX;
                 pos4 = e.clientY;
-                
-                // 限制在畫布範圍內
-                let newTop = elm.offsetTop - pos2;
-                let newLeft = elm.offsetLeft - pos1;
-                
-                elm.style.top = `${newTop}px`;
-                elm.style.left = `${newLeft}px`;
+                elm.style.top = `${elm.offsetTop - pos2}px`;
+                elm.style.left = `${elm.offsetLeft - pos1}px`;
             }
 
             function closeDragElement() {
@@ -552,7 +575,6 @@
                 }, 100);
             }
 
-            // 行動裝置觸控支援
             function dragTouchStart(e) {
                 elm.dataset.dragging = 'false';
                 const touch = e.touches[0];
@@ -567,7 +589,6 @@
                     pos2 = pos4 - t.clientY;
                     pos3 = t.clientX;
                     pos4 = t.clientY;
-                    
                     elm.style.top = `${elm.offsetTop - pos2}px`;
                     elm.style.left = `${elm.offsetLeft - pos1}px`;
                 };
@@ -585,7 +606,6 @@
             }
         }
 
-        // 初始化
         drawSlots();
     </script>
 </body>
