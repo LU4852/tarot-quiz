@@ -179,26 +179,86 @@
             margin: 15px 0;
         }
 
+        /* --- 牌陣擬真排版核心 CSS --- */
         .spread-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 15px;
-            margin-top: 20px;
+            margin-top: 25px;
         }
+
+        /* 1. 三張牌 (橫向等寬) */
+        .spread-layout-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        /* 2. 四張牌 (十字型 3x3) */
+        .spread-layout-4 {
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: auto auto;
+        }
+        .spread-layout-4 .pos-0 { grid-column: 2; grid-row: 2; } /* 問題核心 */
+        .spread-layout-4 .pos-1 { grid-column: 1; grid-row: 2; } /* 面臨障礙 */
+        .spread-layout-4 .pos-2 { grid-column: 2; grid-row: 1; } /* 建議對策 (上方) */
+        .spread-layout-4 .pos-3 { grid-column: 3; grid-row: 2; } /* 擁有資源 */
+
+        /* 3. 五張牌 (Y字二選一 3x3) */
+        .spread-layout-5-choice {
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: auto auto auto;
+        }
+        .spread-layout-5-choice .pos-0 { grid-column: 1; grid-row: 2; } /* 選項 A */
+        .spread-layout-5-choice .pos-1 { grid-column: 3; grid-row: 2; } /* 選項 B */
+        .spread-layout-5-choice .pos-2 { grid-column: 1; grid-row: 1; } /* A 的結果 (左上) */
+        .spread-layout-5-choice .pos-3 { grid-column: 3; grid-row: 1; } /* B 的結果 (右上) */
+        .spread-layout-5-choice .pos-4 { grid-column: 2; grid-row: 3; } /* 當事人 (中下) */
+
+        /* 4. 五張牌 (感情 3x2) */
+        .spread-layout-5-love {
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: auto auto;
+        }
+        .spread-layout-5-love .pos-0 { grid-column: 1; grid-row: 1; } /* 我的狀態 (左上) */
+        .spread-layout-5-love .pos-1 { grid-column: 1; grid-row: 2; } /* 我的態度 (左下) */
+        .spread-layout-5-love .pos-2 { grid-column: 3; grid-row: 1; } /* 對方的狀態 (右上) */
+        .spread-layout-5-love .pos-3 { grid-column: 3; grid-row: 2; } /* 對方的態度 (右下) */
+        .spread-layout-5-love .pos-4 { grid-column: 2; grid-row: 2; } /* 兩人結果 (中下) */
 
         .spread-card-box {
             background-color: rgba(255,255,255,0.03);
             border: 1px solid #34495e;
             border-radius: 8px;
-            padding: 10px;
+            padding: 12px;
             text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .spread-pos-title {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: var(--accent-color);
             font-weight: bold;
             margin-bottom: 8px;
+            min-height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .spread-card-box img {
+            max-width: 100px;
+            height: auto;
+        }
+
+        /* 響應式微調：手機板縮小卡片避免擠壓 */
+        @media (max-width: 600px) {
+            .spread-card-box img {
+                max-width: 70px;
+            }
+            .spread-pos-title {
+                font-size: 0.75rem;
+            }
         }
     </style>
 </head>
@@ -242,7 +302,7 @@
         {"name": "4. 皇帝 (The Emperor)", "keyword": "皇帝", "img": "https://upload.wikimedia.org/wikipedia/commons/c/c3/RWS_Tarot_04_Emperor.jpg", "visual": "嚴肅石椅上的年長國王、身穿紅袍鐵甲、左手持安卡十字架、背景是荒涼紅山", "upright": "權威、結構、穩定、理性、保護、社會秩序、領導力", "reversed": "暴政、嚴苛、缺乏控制、效率低下、暴君傾向、無能"},
         {"name": "5. 教皇 (The Hierophant)", "keyword": "教皇", "img": "https://upload.wikimedia.org/wikipedia/commons/8/8d/RWS_Tarot_05_Hierophant.jpg", "visual": "三人場景、教皇身穿紅袍戴三重冠、前方有兩位僧侶、地上兩把交叉的黃金鑰匙", "upright": "傳統、體制、精神指引、學習、儀式、尋求認同、同盟", "reversed": "叛逆、打破常規、教條主義、新思維、信譽受損、盲目服從"},
         {"name": "6. 戀人 (The Lovers)", "keyword": "戀人", "img": "https://upload.wikimedia.org/wikipedia/commons/d/db/RWS_Tarot_06_Lovers.jpg", "visual": "巨大的天使在空中祝福、下方一男一女（亞當與夏娃）、背景有生命之樹與知善惡樹", "upright": "選擇、和諧、伴侶關係、價值觀一致、吸引力、愛情", "reversed": "不合、錯誤的決定、衝突、逃避責任、心意不一、感情失衡"},
-        {"name": "7. 戰車 (The Chariot)", "keyword": "戰車", "img": "https://upload.wikimedia.org/wikipedia/commons/9/9b/RWS_Tarot_07_Chariot.jpg", "visual": "黑白兩隻人面獅身（斯芬克斯）拉車、披星戴月的篷頂、嚴肅握拳的戰士", "upright": "意力、勝利、前進、克服障礙、自控、野心、決心", "reversed": "失控、失去方向、衝動、侵略性、慘遭挫敗、障礙重重"},
+        {"name": "7. 戰車 (The Chariot)", "keyword": "戰車", "img": "https://upload.wikimedia.org/wikipedia/commons/9/9b/RWS_Tarot_07_Chariot.jpg", "visual": "黑白兩隻人面獅身（斯芬克斯）拉車、披星戴月的篷頂、嚴肅握拳的戰士", "upright": "意志力、勝利、前進、克服障礙、自控、野心、決心", "reversed": "失控、失去方向、衝動、侵略性、慘遭挫敗、障礙重重"},
         {"name": "8. 力量 (Strength)", "keyword": "力量", "img": "https://upload.wikimedia.org/wikipedia/commons/f/f5/RWS_Tarot_08_Strength.jpg", "visual": "溫柔的女性輕撫獅子的下巴、頭頂無限大符號、身穿白衣與花環", "upright": "內在力量、勇氣、耐心、溫柔掌控、同理心、自信", "reversed": "軟弱、恐懼、缺乏自信、自我懷疑、生硬控制、濫用權力"},
         {"name": "9. 隱士 (The Hermit)", "keyword": "隱士", "img": "https://upload.wikimedia.org/wikipedia/commons/4/4d/RWS_Tarot_09_Hermit.jpg", "visual": "冰山頂上的孤獨老人、手持六角星提燈、另一手握黃金權杖", "upright": "內省、尋求真理、孤獨、指引、精神探索、深思熟慮", "reversed": "孤立、寂寞、偏執、拒絕建議、思想封閉、逃避現實"},
         {"name": "10. 命運之輪 (Wheel of Fortune)", "keyword": "命運之輪", "img": "https://upload.wikimedia.org/wikipedia/commons/3/3c/RWS_Tarot_10_Wheel_of_Fortune.jpg", "visual": "巨大的圓輪、四角有帶翅膀的生物在看書、輪上有斯芬克斯與蛇", "upright": "好運、轉折點、命運、契機、不可控的變化、因果輪迴", "reversed": "壞運、抗拒改變、壞習慣循環、時機未到、混亂"},
@@ -263,27 +323,32 @@
         "time": {
             "name": "三張牌｜時間之流牌陣",
             "desc": "適合看清事情演變脈絡的百搭牌陣。",
-            "positions": ["➊ 過去的狀態", "➋ 現在的狀態", "➌ 未來的發展（可能結果）"]
+            "class": "spread-layout-3",
+            "positions": ["➊ 過去的狀態", "➋ 現在的狀態", "➌ 未來的發展"]
         },
         "triangle": {
             "name": "三張牌｜聖三角牌陣",
             "desc": "適合用來找出自己的盲點與事情真相。",
+            "class": "spread-layout-3",
             "positions": ["➊ 我以為的狀態", "➋ 真實的狀態", "➌ 牌卡給予的建言"]
         },
         "core": {
             "name": "四張牌｜直指核心牌陣",
-            "desc": "當生活某部分卡住、沒起色時使用，全面剖析問題。",
-            "positions": ["➊ 問題的核心", "➋ 面臨的障礙", "➌ 建議的對策", "➍ 擁有的資源與優勢"]
+            "desc": "當生活某部分卡住、沒起色時使用，十字交叉定位能全面剖析問題。",
+            "class": "spread-layout-4",
+            "positions": ["➊ 問題的核心", "➋ 面臨的障礙", "➌ 建議的對策", "➍ 擁有的資源"]
         },
         "choice": {
             "name": "五張牌｜二選一＆可能的結果",
-            "desc": "面臨兩個工作或重大抉擇時使用，不適合用在多角感情。",
-            "positions": ["➊ 選項 A 的狀態", "➋ 選項 B 的狀態", "➌ 選項 A 可能的結果", "➍ 選項 B 可能的結果", "➎ 當事人的狀態"]
+            "desc": "面臨兩個工作或重大抉擇時使用，分岔路由左至右清晰可見。",
+            "class": "spread-layout-5-choice",
+            "positions": ["➊ 選項 A 的狀態", "➋ 選項 B 的狀態", "➌ 選項 A 的結果", "➍ 選項 B 的結果", "➎ 當事人的狀態"]
         },
         "love": {
             "name": "五張牌｜感情萬用牌陣",
-            "desc": "檢視雙方的感情狀態、態度以及未來的潛在發展。",
-            "positions": ["➊ 我的狀態", "➋ 我對對方的感情態度", "➌ 對方的狀態", "➍ 對方對我的感情態度", "➎ 兩人的可能結果"]
+            "desc": "對稱檢視雙方的感情狀態、態度以及兩人的交會發展。",
+            "class": "spread-layout-5-love",
+            "positions": ["➊ 我的狀態", "➋ 我的感情態度", "➌ 對方的狀態", "➍ 對方的感情態度", "➎ 兩人的可能結果"]
         }
     };
 
@@ -333,7 +398,6 @@
         document.getElementById('userAnswer').focus();
     }
 
-    // 比對邏輯
     function checkAnswer() {
         const userAns = document.getElementById('userAnswer').value.trim();
         const feedbackZone = document.getElementById('feedbackZone');
@@ -385,7 +449,7 @@
         feedbackZone.innerHTML = htmlReveal;
     }
 
-    // 🆕 模式四：5大牌陣模擬模組（已徹底移除非法名稱）
+    // 🆕 模式四：5大牌陣模擬模組（擬真空間排版更新版）
     function startSpreadMode() {
         document.getElementById('interactiveZone').style.display = 'none';
 
@@ -428,6 +492,9 @@
         const resultsContainer = document.getElementById('spreadResults');
         resultsContainer.innerHTML = '';
 
+        // 重置並套用此牌陣專屬的 CSS Grid 佈局類別
+        resultsContainer.className = `spread-grid ${spread.class}`;
+
         // 隨機抽牌，且牌不能重複
         let shuffled = [...TAROT_DATA].sort(() => 0.5 - Math.random());
         
@@ -440,12 +507,12 @@
             const keywords = isUpright ? card.upright : card.reversed;
 
             gridHtml += `
-                <div class="spread-card-box">
+                <div class="spread-card-box pos-${i}">
                     <div class="spread-pos-title">${spread.positions[i]}</div>
-                    <img src="${card.img}" alt="${card.name}" class="${imgClass}">
-                    <div style="font-size:0.9rem; font-weight:bold; margin-top:5px;" class="highlight">${card.name} (${orientation})</div>
-                    <div style="font-size:0.8rem; color:var(--text-muted); margin-top:5px; text-align:left; line-height:1.4;">
-                        <strong>關鍵意：</strong>${keywords.split('、').slice(0,3).join('、')}...
+                    <img src="${card.img}" alt="${card.name}" class="${imgClass}" style="margin:0;">
+                    <div style="font-size:0.85rem; font-weight:bold; margin-top:8px;" class="highlight">${card.name.split(' ')[1]} (${orientation})</div>
+                    <div style="font-size:0.75rem; color:var(--text-muted); margin-top:4px; text-align:center; line-height:1.3;">
+                        ${keywords.split('、').slice(0,2).join('、')}
                     </div>
                 </div>
             `;
