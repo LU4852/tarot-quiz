@@ -1,17 +1,23 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI實作範例：塔羅新手教學</title>
     <style>
         :root {
-            --primary-color: #4a154b;
-            --secondary-color: #611f69;
-            --accent-color: #e0a96d;
-            --bg-color: #1a1a2e;
-            --card-width: 95px;
-            --card-height: 160px;
+            --bg-color: #0f0f1a;
+            --card-bg: #1a1a2e;
+            --panel-bg: #16213e;
+            --accent-color: #f1c40f;
+            --text-color: #e2e8f0;
+            --text-muted: #94a3b8;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --primary-btn: #3498db;
+            --secondary-btn: #e67e22;
+            --story-btn: #9b59b6;
+            --spread-btn: #1abc9c;
         }
 
         * {
@@ -23,590 +29,429 @@
         body {
             font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
             background-color: var(--bg-color);
-            color: #fff;
+            color: var(--text-color);
+            display: block;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            overflow-x: hidden;
-        }
-
-        header {
-            width: 100%;
-            padding: 20px;
-            text-align: center;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            margin-bottom: 20px;
-        }
-
-        h1 {
-            font-size: 1.8rem;
-            color: var(--accent-color);
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-            letter-spacing: 2px;
+            padding: 40px 20px;
         }
 
         .container {
-            width: 95%;
-            max-width: 1200px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            padding-bottom: 50px;
-        }
-
-        /* 控制面板與牌陣按鈕 */
-        .control-panel {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 15px;
-            border-radius: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .spread-selector {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
-        }
-
-        .btn {
-            background-color: transparent;
-            color: #fff;
-            border: 1px solid var(--accent-color);
-            padding: 8px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.9rem;
-        }
-
-        .btn:hover, .btn.active {
-            background-color: var(--accent-color);
-            color: var(--bg-color);
-            font-weight: bold;
-            box-shadow: 0 0 10px rgba(224, 169, 109, 0.5);
-        }
-
-        .action-group {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-        }
-
-        .btn-action {
-            background-color: var(--primary-color);
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            font-weight: bold;
-            cursor: pointer;
-            color: white;
-            transition: background 0.2s;
-        }
-
-        .btn-action:hover {
-            background-color: var(--secondary-color);
-        }
-
-        /* 牌陣模擬畫布 */
-        .tabletop {
             width: 100%;
-            height: 600px;
-            background: radial-gradient(circle, #2c163f 0%, #12071f 100%);
-            border-radius: 15px;
-            border: 2px solid var(--accent-color);
-            position: relative;
-            overflow: hidden;
-            box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
+            max-width: 780px;
+            background-color: var(--card-bg);
+            padding: 35px;
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+            border: 1px solid #252542;
+            text-align: center;
+            margin: 0 auto;
         }
 
-        /* 牌陣定位輔助框（虛線底框） */
-        .card-slot {
-            position: absolute;
-            width: var(--card-width);
-            height: var(--card-height);
-            border: 2px dashed rgba(224, 169, 109, 0.35);
-            border-radius: 8px;
-            transform: translate(-50%, -50%);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            pointer-events: none;
-            transition: all 0.5s ease;
-        }
-
-        .slot-label {
-            font-size: 0.75rem;
+        h1 {
             color: var(--accent-color);
-            text-align: center;
-            background: rgba(26, 26, 46, 0.9);
-            padding: 4px 6px;
-            border-radius: 4px;
-            margin-top: 5px;
-            border: 1px solid rgba(224, 169, 109, 0.2);
-            white-space: nowrap;
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
 
-        /* 塔羅牌主體 */
-        .card {
-            width: var(--card-width);
-            height: var(--card-height);
-            position: absolute;
-            cursor: grab;
-            user-select: none;
-            touch-action: none;
-            z-index: 5;
-            transition: transform 0.1s ease, box-shadow 0.3s ease;
-        }
-
-        .card:active {
-            cursor: grabbing;
-        }
-
-        .card-inner {
-            width: 100%;
-            height: 100%;
-            position: relative;
-            transform-style: preserve-3d;
-            transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-        }
-
-        /* 翻牌狀態 */
-        .card.flipped .card-inner {
-            transform: rotateY(180deg);
-        }
-
-        /* 逆位狀態 - 作用在卡片外層 */
-        .card.reversed {
-            transform: rotate(180deg);
-        }
-
-        /* 處理塞爾特十字第2張牌（橫跨在第1張牌上）的旋轉與逆位疊加效果 */
-        .card.cross-overlap {
-            transform: rotate(90deg);
-        }
-        .card.cross-overlap.reversed {
-            transform: rotate(270deg);
-        }
-
-        .card-face {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            backface-visibility: hidden;
-            border-radius: 8px;
-            border: 2px solid var(--accent-color);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px;
-            overflow: hidden;
-        }
-
-        /* 牌背 */
-        .card-back {
-            background: linear-gradient(135deg, #0f0c1b, #2c163f);
-            color: var(--accent-color);
-            justify-content: center;
-        }
-
-        .card-back-pattern {
-            width: 85%;
-            height: 85%;
-            border: 1px dashed rgba(224, 169, 109, 0.5);
-            border-radius: 6px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 1.5rem;
-        }
-
-        /* 牌面 */
-        .card-front {
-            background-color: #fff;
-            color: #000;
-            transform: rotateY(180deg);
-        }
-
-        .card-title {
-            font-size: 0.8rem;
-            font-weight: bold;
-            text-align: center;
-            color: var(--primary-color);
-        }
-
-        .card-illustration {
-            font-size: 2.2rem;
-            margin: 5px 0;
-        }
-
-        /* 關鍵字顯示區域：高對比度、防遮蔽 */
-        .keyword-tag {
-            background-color: rgba(0, 0, 0, 0.88);
-            color: #fff;
-            font-size: 0.75rem;
-            font-weight: bold;
-            padding: 4px 6px;
-            border-radius: 4px;
-            text-align: center;
-            width: 95%;
-            word-wrap: break-word;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            z-index: 10;
-        }
-
-        /* 當卡牌旋轉（逆位或橫置）時，反向修正關鍵字的角度，確保文字永遠水平可讀 */
-        .card.reversed .keyword-tag {
-            transform: rotate(180deg);
-        }
-        .card.cross-overlap .keyword-tag {
-            transform: rotate(-90deg);
-        }
-        .card.cross-overlap.reversed .keyword-tag {
-            transform: rotate(-270deg);
-        }
-
-        /* 底部資訊板 */
-        .info-panel {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 15px;
-            border-radius: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            min-height: 80px;
+        .subtitle {
             font-size: 0.95rem;
-            line-height: 1.6;
+            color: var(--text-muted);
+            margin-bottom: 30px;
         }
 
-        /* 響應式微調 */
-        @media (max-width: 768px) {
-            :root {
-                --card-width: 70px;
-                --card-height: 120px;
-            }
-            .tabletop {
-                height: 520px;
-            }
-            .card-illustration {
-                font-size: 1.5rem;
-            }
-            .card-title {
-                font-size: 0.65rem;
-            }
-            .keyword-tag {
-                font-size: 0.65rem;
-                padding: 2px 4px;
-            }
-            .slot-label {
-                font-size: 0.65rem;
-                padding: 2px 4px;
-            }
+        .nav-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px 10px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+
+        .btn-draw { background-color: var(--primary-btn); color: white; }
+        .btn-quiz { background-color: var(--secondary-btn); color: white; }
+        .btn-story { background-color: var(--story-btn); color: white; }
+        .btn-spread { background-color: var(--spread-btn); color: white; }
+        .btn-submit { background-color: var(--success-color); color: white; width: 100%; margin-top: 15px; }
+        .btn-reveal { background-color: var(--accent-color); color: #1a1a2e; width: 100%; margin-top: 15px; }
+        
+        button:hover {
+            transform: translateY(-2px);
+            opacity: 0.95;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+
+        .display-board {
+            background-color: var(--panel-bg);
+            padding: 25px;
+            border-radius: 12px;
+            min-height: 220px;
+            text-align: left;
+            line-height: 1.7;
+            margin-bottom: 20px;
+            border-left: 5px solid var(--accent-color);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .tarot-image-container {
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .tarot-img {
+            width: 130px;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+            border: 2px solid var(--accent-color);
+            transition: transform 0.3s ease;
+            margin: 5px;
+        }
+
+        .tarot-img.reversed-img {
+            transform: rotate(180deg);
+        }
+
+        .interactive-zone {
+            display: none;
+            margin-top: 20px;
+            background-color: #1f1f3a;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #2d2d54;
+        }
+
+        input[type="text"], textarea, select {
+            width: 100%;
+            padding: 14px;
+            border-radius: 8px;
+            border: 2px solid #34495e;
+            background-color: var(--bg-color);
+            color: white;
+            font-size: 1.1rem;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        textarea {
+            text-align: left;
+            resize: vertical;
+            font-size: 1rem;
+        }
+
+        select {
+            text-align-last: center;
+            margin-bottom: 15px;
+        }
+
+        input[type="text"]:focus, textarea:focus, select:focus {
+            border-color: var(--accent-color);
+            outline: none;
+        }
+
+        .highlight { color: var(--accent-color); font-weight: bold; }
+        .upright { color: var(--success-color); font-weight: bold; }
+        .reversed { color: var(--danger-color); font-weight: bold; }
+        
+        .feedback {
+            margin-top: 15px;
+            font-weight: bold;
+            text-align: center;
+            font-size: 1.1rem;
+            min-height: 40px;
+        }
+
+        .divider {
+            border: 0;
+            border-top: 1px solid #2d2d54;
+            margin: 15px 0;
+        }
+
+        .spread-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .spread-card-box {
+            background-color: rgba(255,255,255,0.03);
+            border: 1px solid #34495e;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .spread-pos-title {
+            font-size: 0.9rem;
+            color: var(--accent-color);
+            font-weight: bold;
+            margin-bottom: 8px;
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>AI實作範例：塔羅新手教學</h1>
-    </header>
+<div class="container">
+    <h1>🔮 AI實作範例：塔羅新手教學</h1>
+    <div class="subtitle">新增「5大萬用牌陣」模擬模組，全面訓練你的占卜脈絡</div>
+    
+    <div class="nav-buttons">
+        <button class="btn-draw" onclick="drawCard()">每日一牌 (抽牌)</button>
+        <button class="btn-quiz" onclick="startQuiz()">圖像聯想測驗</button>
+        <button class="btn-story" onclick="startStoryMode()">看圖說故事</button>
+        <button class="btn-spread" onclick="startSpreadMode()">5大牌陣模擬 🆕</button>
+    </div>
 
-    <div class="container">
-        <!-- 頂部控制面板 -->
-        <div class="control-panel">
-            <div class="spread-selector">
-                <button class="btn active" onclick="selectSpread('free')">自由自選</button>
-                <button class="btn" onclick="selectSpread('one')">單牌直覺</button>
-                <button class="btn" onclick="selectSpread('three')">聖三角 (時間流)</button>
-                <button class="btn" onclick="selectSpread('choices')">二選一牌陣</button>
-                <button class="btn" onclick="selectSpread('cross')">塞爾特十字</button>
-            </div>
-            <div class="action-group">
-                <button class="btn btn-action" onclick="dealCards()">洗牌開局</button>
-                <button class="btn btn-action" style="background-color: #6c757d;" onclick="resetTable()">清空桌面</button>
-            </div>
-        </div>
-
-        <!-- 牌陣大畫布 -->
-        <div id="tabletop" class="tabletop"></div>
-
-        <!-- 說明與解讀資訊 -->
-        <div id="info-panel" class="info-panel">
-            💡 <strong>使用說明：</strong>請點選上方欲模擬的「牌陣類型」，再按下「洗牌開局」。點擊卡牌即可「翻牌」，雙擊卡牌切換「正位/逆位」。卡牌均可自由拖曳。
+    <div class="display-board" id="displayBoard">
+        <div style="text-align: center; color: var(--text-muted); padding-top: 20px;">
+            <p style="font-size: 1.1rem; color: var(--accent-color); margin-bottom: 15px;"><strong>【新手修練四大模式】</strong></p>
+            <p style="margin-bottom: 10px;">🏷️ <strong>每日一牌</strong>：看著對應的真圖，快速吸收正逆位核心含意。</p>
+            <p style="margin-bottom: 10px;">🧠 <strong>圖像聯想測驗</strong>：遮蔽圖片，盲測你對畫面視覺特徵的記憶。</p>
+            <p style="margin-bottom: 10px;">🎨 <strong>看圖說故事</strong>：只看圖片細節，逼迫自己用直覺連結生命故事。</p>
+            <p style="margin-bottom: 25px;">📐 <strong>5大牌陣模擬</strong>：掌握「一蘿蔔一坑」心法，實際抽牌並理解各位置含意！</p>
+            <p style="font-size: 0.9rem; color: #64748b;">💡 點選上方按鈕開啟你的學習與占卜之旅吧！</p>
         </div>
     </div>
 
-    <script>
-        // 大阿爾克那經典卡牌資料
-        const tarotDeck = [
-            { id: 0, name: "愚者", symbol: "🃏", keyword: "冒險、全新開始、自由" },
-            { id: 1, name: "魔術師", symbol: "🧙‍♂️", keyword: "創造力、專注、主動" },
-            { id: 2, name: "女祭司", symbol: "🔮", keyword: "直覺、潛意識、智慧" },
-            { id: 3, name: "女皇", symbol: "👑", keyword: "豐收、自然、孕育" },
-            { id: 4, name: "皇帝", symbol: "⚔️", keyword: "控制、權威、秩序" },
-            { id: 5, name: "教皇", symbol: "📜", keyword: "傳統、精神引導、體制" },
-            { id: 6, name: "戀人", symbol: "💖", keyword: "選擇、和諧、關係" },
-            { id: 7, name: "戰車", symbol: "🛡️", keyword: "意志力、勝利、前進" },
-            { id: 8, name: "力量", symbol: "🦁", keyword: "勇氣、耐性、內在力量" },
-            { id: 9, name: "隱士", symbol: "🕯️", keyword: "內省、孤獨、尋求真理" },
-            { id: 10, name: "命運之輪", symbol: "🎡", keyword: "轉機、命運、運氣" },
-            { id: 11, name: "正義", symbol: "⚖️", keyword: "公平、真理、因果" },
-            { id: 12, name: "吊人", symbol: "⚓", keyword: "犧牲、換位思考、等待" },
-            { id: 13, name: "死神", symbol: "💀", keyword: "結束、轉變、新生" },
-            { id: 14, name: "節制", symbol: "🧪", keyword: "平衡、調和、淨化" },
-            { id: 15, name: "惡魔", symbol: "😈", keyword: "執著、物質誘惑、束縛" },
-            { id: 16, name: "高塔", symbol: "⚡", keyword: "劇變、破壞、覺醒" },
-            { id: 17, name: "星星", symbol: "⭐", keyword: "希望、信心、療癒" },
-            { id: 18, name: "月亮", symbol: "🌙", keyword: "不安、恐懼、潛意識" },
-            { id: 19, name: "太陽", symbol: "☀️", keyword: "成功、活力、喜悅" },
-            { id: 20, name: "審判", symbol: "🔔", keyword: "呼喚、重大決定、覺醒" },
-            { id: 21, name: "世界", symbol: "🌍", keyword: "圓滿、達成、旅程終點" }
-        ];
+    <!-- 交互操作區（動態切換內容） -->
+    <div class="interactive-zone" id="interactiveZone">
+        <div id="zoneContent"></div>
+        <div class="feedback" id="feedbackZone"></div>
+    </div>
+</div>
 
-        // 牌陣配置座標與正統含意 (X%, Y% 絕對精準定位)
-        const spreads = {
-            free: [],
-            one: [
-                { name: "核心解答", x: 50, y: 50 }
-            ],
-            three: [ // 正統倒三角形聖三角
-                { name: "1. 過去 (左上)", x: 30, y: 35 },
-                { name: "2. 現在 (右上)", x: 70, y: 35 },
-                { name: "3. 未來 (下方)", x: 50, y: 70 }
-            ],
-            choices: [ // 分叉選擇牌陣
-                { name: "1. 現狀/問題", x: 50, y: 75 },
-                { name: "2. 選擇A現狀", x: 25, y: 45 },
-                { name: "3. 選擇A未來結果", x: 25, y: 15 },
-                { name: "4. 選擇B現狀", x: 75, y: 45 },
-                { name: "5. 選擇B未來結果", x: 75, y: 15 }
-            ],
-            cross: [ // 標準塞爾特十字
-                { name: "1. 當前處境(中心)", x: 40, y: 50 },
-                { name: "2. 面臨障礙(橫跨)", x: 40, y: 50, special: "overlap" }, // 疊在第1張上
-                { name: "3. 目標/意識層", x: 40, y: 15 },
-                { name: "4. 潛意識根基", x: 40, y: 85 },
-                { name: "5. 過去影響", x: 18, y: 50 },
-                { name: "6. 即將到來", x: 62, y: 50 },
-                { name: "7. 自身狀況", x: 85, y: 85 },
-                { name: "8. 外界環境", x: 85, y: 62 },
-                { name: "9. 希望與恐懼", x: 85, y: 38 },
-                { name: "10. 最終結果", x: 85, y: 15 }
-            ]
-        };
+<script>
+    const TAROT_DATA = [
+        {"name": "0. 愚者 (The Fool)", "keyword": "愚者", "img": "https://upload.wikimedia.org/wikipedia/commons/9/90/RWS_Tarot_00_Fool.jpg", "visual": "懸崖邊的年輕人、白色小狗、彩色包袱、手拿白玫瑰", "upright": "開始、冒險、自由、不拘一格、純真、潛力", "reversed": "魯莽、不負責任、逃避、猶豫不決、粗心、流浪"},
+        {"name": "1. 魔術師 (The Magician)", "keyword": "魔術師", "img": "https://upload.wikimedia.org/wikipedia/commons/d/de/RWS_Tarot_01_Magician.jpg", "visual": "桌上的四要素（權杖/聖杯/寶劍/錢幣）、頭頂無限大符號、一手指天一手指地", "upright": "創造力、專注、顯化、資源豐富、行動力、精通", "reversed": "幻覺、欺騙、能力未發揮、走捷徑、懷才不遇、欺詐"},
+        {"name": "2. 女祭司 (The High Priestess)", "keyword": "女祭司", "img": "https://upload.wikimedia.org/wikipedia/commons/8/88/RWS_Tarot_02_High_Priestess.jpg", "visual": "身後黑白雙柱（B與J）、手拿捲軸（TORA）、腳下有一輪新月", "upright": "直覺、潛意識、神祕、內省、靜態等待、智慧", "reversed": "膚淺、忽略直覺、隱藏動機、焦慮、理智失衡、冷漠"},
+        {"name": "3. 皇后 (The Empress)", "keyword": "皇后", "img": "https://upload.wikimedia.org/wikipedia/commons/d/d2/RWS_Tarot_03_Empress.jpg", "visual": "成熟豐腴的女性坐在舒適沙發、前方滿片麥田、森林與瀑布、盾牌上的金星符號", "upright": "豐收、孕育、自然、母愛、富足、感官享受、創造力", "reversed": "過度控制、缺乏安全感、創造力受阻、過度溺愛、家庭衝突"},
+        {"name": "4. 皇帝 (The Emperor)", "keyword": "皇帝", "img": "https://upload.wikimedia.org/wikipedia/commons/c/c3/RWS_Tarot_04_Emperor.jpg", "visual": "嚴肅石椅上的年長國王、身穿紅袍鐵甲、左手持安卡十字架、背景是荒涼紅山", "upright": "權威、結構、穩定、理性、保護、社會秩序、領導力", "reversed": "暴政、嚴苛、缺乏控制、效率低下、暴君傾向、無能"},
+        {"name": "5. 教皇 (The Hierophant)", "keyword": "教皇", "img": "https://upload.wikimedia.org/wikipedia/commons/8/8d/RWS_Tarot_05_Hierophant.jpg", "visual": "三人場景、教皇身穿紅袍戴三重冠、前方有兩位僧侶、地上兩把交叉的黃金鑰匙", "upright": "傳統、體制、精神指引、學習、儀式、尋求認同、同盟", "reversed": "叛逆、打破常規、教條主義、新思維、信譽受損、盲目服從"},
+        {"name": "6. 戀人 (The Lovers)", "keyword": "戀人", "img": "https://upload.wikimedia.org/wikipedia/commons/d/db/RWS_Tarot_06_Lovers.jpg", "visual": "巨大的天使在空中祝福、下方一男一女（亞當與夏娃）、背景有生命之樹與知善惡樹", "upright": "選擇、和諧、伴侶關係、價值觀一致、吸引力、愛情", "reversed": "不合、錯誤的決定、衝突、逃避責任、心意不一、感情失衡"},
+        {"name": "7. 戰車 (The Chariot)", "keyword": "戰車", "img": "https://upload.wikimedia.org/wikipedia/commons/9/9b/RWS_Tarot_07_Chariot.jpg", "visual": "黑白兩隻人面獅身（斯芬克斯）拉車、披星戴月的篷頂、嚴肅握拳的戰士", "upright": "意志力、勝利、前進、克服障礙、自控、野心、決心", "reversed": "失控、失去方向、衝動、侵略性、慘遭挫敗、障礙重重"},
+        {"name": "8. 力量 (Strength)", "keyword": "力量", "img": "https://upload.wikimedia.org/wikipedia/commons/f/f5/RWS_Tarot_08_Strength.jpg", "visual": "溫柔的女性輕撫獅子的下巴、頭頂無限大符號、身穿白衣與花環", "upright": "內在力量、勇氣、耐心、溫柔掌控、同理心、自信", "reversed": "軟弱、恐懼、缺乏自信、自我懷疑、生硬控制、濫用權力"},
+        {"name": "9. 隱士 (The Hermit)", "keyword": "隱士", "img": "https://upload.wikimedia.org/wikipedia/commons/4/4d/RWS_Tarot_09_Hermit.jpg", "visual": "冰山頂上的孤獨老人、手持六角星提燈、另一手握黃金權杖", "upright": "內省、尋求真理、孤獨、指引、精神探索、深思熟慮", "reversed": "孤立、寂寞、偏執、拒絕建議、思想封閉、逃避現實"},
+        {"name": "10. 命運之輪 (Wheel of Fortune)", "keyword": "命運之輪", "img": "https://upload.wikimedia.org/wikipedia/commons/3/3c/RWS_Tarot_10_Wheel_of_Fortune.jpg", "visual": "巨大的圓輪、四角有帶翅膀的生物在看書、輪上有斯芬克斯與蛇", "upright": "好運、轉折點、命運、契機、不可控的變化、因果輪迴", "reversed": "壞運、抗拒改變、壞習慣循環、時機未到、混亂"},
+        {"name": "11. 正義 (Justice)", "keyword": "正義", "img": "https://upload.wikimedia.org/wikipedia/commons/e/e0/RWS_Tarot_11_Justice.jpg", "visual": "端坐的女性、右手持向上寶劍、左手持平衡天秤、紫色帷幕背景", "upright": "公平、正義、真理、因果責任、法律事務、客觀裁決", "reversed": "不公正、偏見、推卸責任、法律訴訟失敗、失衡、偏袒"},
+        {"name": "12. 倒吊人 (The Hanged Man)", "keyword": "倒吊人", "img": "https://upload.wikimedia.org/wikipedia/commons/2/2b/RWS_Tarot_12_Hanged_Man.jpg", "visual": "男子單腳倒吊在T字形十字架上、頭部發出神聖光芒、雙手藏於背後", "upright": "犧牲、換位思考、等待、釋放、奉獻、全新視角", "reversed": "無謂的犧牲、停滯不前、抗拒、拖延、隨波逐流、白費心機"},
+        {"name": "13. 死神 (Death)", "keyword": "死神", "img": "https://upload.wikimedia.org/wikipedia/commons/d/d7/RWS_Tarot_13_Death.jpg", "visual": "骷髏騎士手持黑色骷髏旗、地上有國王與教皇倒下、遠方有黎明曙光與雙塔", "upright": "結束、重大轉變、新生、淘汰、告別過去、破壞與重建", "reversed": "恐懼改變、沉溺過去、停滯、勉強維持、抗拒重生"},
+        {"name": "14. 節制 (Temperance)", "keyword": "節制", "img": "https://upload.wikimedia.org/wikipedia/commons/f/f8/RWS_Tarot_14_Temperance.jpg", "visual": "大天使一腳在水中一腳在陸地、雙手持聖杯並在其中傾倒液體、背景有通往山脈的道路", "upright": "平衡、融合、和諧、淨化、耐心、跨界合作、細水長流", "reversed": "失衡、不和諧、過度浪費、缺乏溝通、無法融合、衝突"},
+        {"name": "15. 惡魔 (The Devil)", "keyword": "惡魔", "img": "https://upload.wikimedia.org/wikipedia/commons/5/55/RWS_Tarot_15_Devil.jpg", "visual": "有翅膀的羊頭惡魔、下方鎖鏈圈住一男一女、男女長出犄角與尾巴", "upright": "束擺、慾望、物質主義、成癮、陰暗面、執著、誘惑", "reversed": "覺醒、重獲自由、打破束縛、克服成癮、告別物質奴役"},
+        {"name": "16. 高塔 (The Tower)", "keyword": "高塔", "img": "https://upload.wikimedia.org/wikipedia/commons/5/53/RWS_Tarot_16_Tower.jpg", "visual": "雷電擊中高塔頂端的皇冠、高塔起火、兩個人從高空墜落、背景一片黑暗", "upright": "突變、震驚、幻滅、崩潰、意外改變、打破傲慢、釋放", "reversed": "避開災難、延緩崩潰、內心風暴、恐懼危機、拒絕面對現實"},
+        {"name": "17. 星星 (The Star)", "keyword": "星星", "img": "https://upload.wikimedia.org/wikipedia/commons/d/db/RWS_Tarot_17_Star.jpg", "visual": "裸女雙膝著地、手持兩個水瓶往陸地與水中倒水、頭頂有巨大的八角星與七顆小星", "upright": "希望、祝福、療癒、靈感、寧靜、光明前景、樂觀", "reversed": "失望、缺乏信仰、焦慮、靈感枯竭、不切實際的幻想"},
+        {"name": "18. 月亮 (The Moon)", "keyword": "月亮", "img": "https://upload.wikimedia.org/wikipedia/commons/7/7f/RWS_Tarot_18_Moon.jpg", "visual": "天空中哭泣的月亮、地面有一隻狗與一隻狼對月咆哮、一隻龍蝦從水池中爬出", "upright": "不安、恐懼、幻覺、隱瞞、潛意識浮現、迷茫、直覺啟示", "reversed": "真相大白、解除誤會、恐懼消散、走出迷霧、直覺敏銳"},
+        {"name": "19. 太陽 (The Sun)", "keyword": "太陽", "img": "https://upload.wikimedia.org/wikipedia/commons/1/17/RWS_Tarot_19_Sun.jpg", "visual": "快樂的裸體小孩騎在白馬上、手舉紅色大旗、背景是向日葵與金色圍牆", "upright": "成功、快樂、活力、自信、光明、真相、新生、豐盛", "reversed": "短暫的挫折、熱情消退、過度自信、虛榮、缺乏活力"},
+        {"name": "20. 審判 (The Judgement)", "keyword": "審判", "img": "https://upload.wikimedia.org/wikipedia/commons/d/dd/RWS_Tarot_20_Judgement.jpg", "visual": "大天使在雲端吹響號角、號角上有十字旗、地面上許多人從棺材中甦醒並歡呼", "upright": "召喚、覺醒、重大決定、重生、因果清算、回顧與檢討", "reversed": "拒絕召喚、自我懷疑、錯失良機、拖延決策、不願面對過去"},
+        {"name": "21. 世界 (The World)", "keyword": "世界", "img": "https://upload.wikimedia.org/wikipedia/commons/f/ff/RWS_Tarot_21_World.jpg", "visual": "舞者身披紫色絲帶在綠色桂冠圈內跳舞、四角分別是人、鷹、牛、獅的頭像", "upright": "完成、圓滿、成功、旅行、圓滿结局、融合、達到目標", "reversed": "未完成、延遲、缺乏成果、功虧一簣、停滯不前、眼高手低"}
+    ];
 
-        let currentSpread = 'free';
-        const tabletop = document.getElementById('tabletop');
-        const infoPanel = document.getElementById('info-panel');
+    const SPREADS = {
+        "time": {
+            "name": "三張牌｜時間之流牌陣",
+            "desc": "適合看清事情演變脈絡的百搭牌陣。",
+            "positions": ["➊ 過去的狀態", "➋ 現在的狀態", "➌ 未來的發展（可能結果）"]
+        },
+        "triangle": {
+            "name": "三張牌｜聖三角牌陣",
+            "desc": "適合用來找出自己的盲點與事情真相。",
+            "positions": ["➊ 我以為的狀態", "➋ 真實的狀態", "➌ 牌卡給予的建言"]
+        },
+        "core": {
+            "name": "四張牌｜直指核心牌陣",
+            "desc": "當生活某部分卡住、沒起色時使用，全面剖析問題。",
+            "positions": ["➊ 問題的核心", "➋ 面臨的障礙", "➌ 建議的對策", "➍ 擁有的資源與優勢"]
+        },
+        "choice": {
+            "name": "五張牌｜二選一＆可能的結果",
+            "desc": "面臨兩個工作或重大抉擇時使用，不適合用在多角感情。",
+            "positions": ["➊ 選項 A 的狀態", "➋ 選項 B 的狀態", "➌ 選項 A 可能的結果", "➍ 選項 B 可能的結果", "➎ 當事人的狀態"]
+        },
+        "love": {
+            "name": "五張牌｜感情萬用牌陣",
+            "desc": "檢視雙方的感情狀態、態度以及未來的潛在發展。",
+            "positions": ["➊ 我的狀態", "➋ 我對對方的感情態度", "➌ 對方的狀態", "➍ 對方對我的感情態度", "➎ 兩人的可能結果"]
+        }
+    };
 
-        function selectSpread(type) {
-            currentSpread = type;
-            document.querySelectorAll('.spread-selector .btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            drawSlots();
+    let currentCard = null;
+
+    // 模式一、二、三 保持原功能
+    function drawCard() {
+        document.getElementById('interactiveZone').style.display = 'none'; 
+        const card = TAROT_DATA[Math.floor(Math.random() * TAROT_DATA.length)];
+        const isUpright = Math.random() > 0.5;
+        const orientation = isUpright ? "正位" : "逆位";
+        const keywordClass = isUpright ? "upright" : "reversed";
+        const imgClass = isUpright ? "tarot-img" : "tarot-img reversed-img";
+        const keywords = isUpright ? card.upright : card.reversed;
+
+        const htmlContent = `
+            <div style="text-align:center;">
+                <h3 style="margin-top:0; font-size:1.3rem;">🔮 抽出牌卡：<span class="highlight">${card.name}</span> (${orientation})</h3>
+                <div class="tarot-image-container">
+                    <img src="${card.img}" alt="${card.name}" class="${imgClass}">
+                </div>
+                <hr class="divider">
+                <p style="margin-bottom: 12px;"><strong>👁️ 牌面核心視覺：</strong><br><span style="color:#67e8f9">${card.visual}</span></p>
+                <p><strong>💡 核心牌義 (<span class="${keywordClass}">${orientation}</span>)：</strong><br>${keywords}</p>
+            </div>
+        `;
+        document.getElementById('displayBoard').innerHTML = htmlContent;
+    }
+
+    function startQuiz() {
+        currentCard = TAROT_DATA[Math.floor(Math.random() * TAROT_DATA.length)];
+        const htmlContent = `
+            <h3 style="margin-top:0; color: var(--accent-color); font-size:1.3rem; text-align:center;">📝 偉特圖像聯想測驗</h3>
+            <p style="margin-top: 10px; text-align:center; color:var(--text-muted);">請觀察以下【牌面視覺暗示】，猜猜它是哪張牌？</p>
+            <div style="background-color: var(--bg-color); padding: 18px; border-radius: 8px; font-size: 1.1rem; border: 1px dashed var(--accent-color); margin: 18px 0; text-align:center;">
+                <strong>「 ${currentCard.visual} 」</strong>
+            </div>
+        `;
+        document.getElementById('displayBoard').innerHTML = htmlContent;
+        
+        document.getElementById('zoneContent').innerHTML = `
+            <input type="text" id="userAnswer" placeholder="輸入牌名關鍵字 (例如: 愚者、魔術師...)" onkeyup="if(event.keyCode===13) checkAnswer()">
+            <button class="btn-submit" onclick="checkAnswer()">提交答案</button>
+        `;
+        document.getElementById('interactiveZone').style.display = 'block';
+        document.getElementById('feedbackZone').innerHTML = '';
+        document.getElementById('userAnswer').focus();
+    }
+
+    function checkAnswer() {
+        const userAns = document.getElementById('userAnswer').value.trim();
+        const feedbackZone = document.getElementById('feedbackZone');
+        if (!userAns) return;
+
+        if (currentCard.name.includes(userAns) && userAns.length >= 1) {
+            feedbackZone.innerHTML = `<span style="color:var(--success-color)">🎉 太棒了！完全答對！</span><br>
+                                      <small style="color:var(--text-muted); font-size:0.95rem;">這張牌是：${currentCard.name}<br>正位：${currentCard.upright}</small>`;
+            setTimeout(startQuiz, 2500);
+        } else {
+            feedbackZone.innerHTML = `<span style="color:var(--danger-color)">❌ 再接再厲！正確答案是：<span class="highlight">${currentCard.name}</span></span>`;
+            setTimeout(startQuiz, 3200);
+        }
+    }
+
+    function startStoryMode() {
+        currentCard = TAROT_DATA[Math.floor(Math.random() * TAROT_DATA.length)];
+        const htmlContent = `
+            <h3 style="margin-top:0; color: var(--story-btn); font-size:1.3rem; text-align:center;">🎨 看圖說故事 (直覺訓練)</h3>
+            <p style="margin-top: 5px; text-align:center; color:var(--text-muted);">眼前這張神祕牌面，你看到了什麼？</p>
+            <div class="tarot-image-container">
+                <img src="${currentCard.img}" alt="猜猜我是誰" class="tarot-img" style="border-color: var(--story-btn);">
+            </div>
+        `;
+        document.getElementById('displayBoard').innerHTML = htmlContent;
+
+        document.getElementById('zoneContent').innerHTML = `
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 8px; text-align:left;">
+                ✍️ <strong>思考引導練習：</strong>主角是誰？身處什麼環境？有什麼關鍵道具？帶給你什麼感覺？
+            </p>
+            <textarea id="storyNotes" rows="3" placeholder="試著寫下你的畫面筆記..."></textarea>
+            <button class="btn-reveal" onclick="revealStoryAnswer()">公布牌面真相與核心秘密</button>
+        `;
+        document.getElementById('interactiveZone').style.display = 'block';
+        document.getElementById('feedbackZone').innerHTML = '';
+    }
+
+    function revealStoryAnswer() {
+        const feedbackZone = document.getElementById('feedbackZone');
+        const htmlReveal = `
+            <div style="text-align:left; background-color: rgba(241, 196, 15, 0.1); padding: 15px; border-radius: 8px; border: 1px solid var(--accent-color); margin-top:15px; font-size:0.95rem; line-height:1.6;">
+                <p style="font-size:1.1rem; margin-bottom:5px;"><strong class="highlight">✨ 這張牌是：${currentCard.name}</strong></p>
+                <p><strong>👁️ 牌面視覺細節：</strong><br>${currentCard.visual}</p>
+                <p style="margin-top:5px;"><strong>💡 正位義：</strong>${currentCard.upright}</p>
+                <p><strong>💡 逆位義：</strong>${currentCard.reversed}</p>
+            </div>
+            <button class="btn-story" style="margin-top:15px;" onclick="startStoryMode()">下一張挑戰</button>
+        `;
+        feedbackZone.innerHTML = htmlReveal;
+    }
+
+    // 🆕 模式四：5大牌陣模擬模組
+    function startSpreadMode() {
+        document.getElementById('interactiveZone').style.display = 'none';
+
+        let optionsHtml = '';
+        for (let key in SPREADS) {
+            optionsHtml += `<option value="${key}">${SPREADS[key].name}</option>`;
         }
 
-        // 渲染底板虛線框與標籤
-        function drawSlots() {
-            document.querySelectorAll('.card-slot').forEach(slot => slot.remove());
-            const config = spreads[currentSpread];
-            if (!config) return;
-
-            config.forEach(item => {
-                const slot = document.createElement('div');
-                slot.className = 'card-slot';
-                slot.style.left = `${item.x}%`;
-                slot.style.top = `${item.y}%`;
-                
-                // 塞爾特十字第二張特殊處理
-                if (item.special === "overlap") {
-                    slot.style.transform = `translate(-50%, -50%) rotate(90deg)`;
-                }
-
-                const label = document.createElement('div');
-                label.className = 'slot-label';
-                label.innerText = item.name;
-                slot.appendChild(label);
-                
-                tabletop.appendChild(slot);
-            });
-        }
-
-        function resetTable() {
-            document.querySelectorAll('.card').forEach(card => card.remove());
-            infoPanel.innerHTML = '🔮 桌面已清空。選擇預定牌陣後，點擊「洗牌開局」即可進行占卜。';
-        }
-
-        // 進行洗牌發牌
-        function dealCards() {
-            resetTable();
-            drawSlots();
-
-            const shuffled = [...tarotDeck].sort(() => Math.random() - 0.5);
-            const config = spreads[currentSpread];
-
-            if (currentSpread === 'free' || !config || config.length === 0) {
-                // 自由模式隨機落點
-                for (let i = 0; i < 5; i++) {
-                    createCard(shuffled[i], 30 + (i * 10), 45);
-                }
-                infoPanel.innerHTML = '🔮 已預發 5 張卡牌。你可以自由拖曳至任何位置，並自訂牌陣。';
-            } else {
-                // 按預定牌陣之固定位置發牌
-                config.forEach((slotInfo, index) => {
-                    if (shuffled[index]) {
-                        const isReversed = Math.random() > 0.75; // 25% 隨機逆位率
-                        createCard(
-                            shuffled[index], 
-                            slotInfo.x, 
-                            slotInfo.y, 
-                            isReversed, 
-                            slotInfo.special === "overlap", 
-                            slotInfo.name
-                        );
-                    }
-                });
-                infoPanel.innerHTML = `🔮 <b>${document.querySelector('.spread-selector .btn.active').innerText}</b> 已依照既定位置發牌完畢。點擊卡牌翻開，雙擊可逆位微調。`;
-            }
-        }
-
-        // 建立卡牌 DOM 元素
-        function createCard(data, xPercent, yPercent, isReversed = false, isOverlap = false, slotName = '') {
-            const card = document.createElement('div');
-            card.className = 'card';
+        const htmlContent = `
+            <h3 style="margin-top:0; color: var(--spread-btn); font-size:1.3rem; text-align:center;">📐 珊妮療癒所：5 大萬用牌陣模擬</h3>
+            <p style="margin-top: 5px; text-align:center; color:var(--text-muted); margin-bottom: 15px;">「一個蘿蔔一個坑」，先選定牌陣，然後抽牌吧！</p>
             
-            // 塞爾特十字第二張牌特殊橫放樣式處理
-            if (isOverlap) {
-                card.classList.add('cross-overlap');
-            }
-            if (isReversed) {
-                card.classList.add('reversed');
-            }
-            
-            card.style.left = `calc(${xPercent}% - (var(--card-width) / 2))`;
-            card.style.top = `calc(${yPercent}% - (var(--card-height) / 2))`;
+            <div style="max-width: 400px; margin: 0 auto 20px auto;">
+                <select id="spreadSelect" onchange="updateSpreadDesc()">
+                    ${optionsHtml}
+                </select>
+                <p id="spreadDesc" style="color: var(--text-muted); font-size: 0.9rem; text-align: center; min-height: 40px;">
+                    ${SPREADS['time'].desc}
+                </p>
+            </div>
 
-            const inner = document.createElement('div');
-            inner.className = 'card-inner';
-            
-            // 牌背
-            const back = document.createElement('div');
-            back.className = 'card-face card-back';
-            back.innerHTML = `<div class="card-back-pattern">✨</div>`;
-            
-            // 牌面與防遮蔽關鍵字
-            const front = document.createElement('div');
-            front.className = 'card-face card-front';
-            front.innerHTML = `
-                <div class="card-title">${data.name}</div>
-                <div class="card-illustration">${data.symbol}</div>
-                <div class="keyword-tag">${data.keyword}</div>
+            <div style="text-align: center;">
+                <button class="btn-spread" style="width: auto; padding: 12px 30px;" onclick="drawSpreadCards()">進行占卜抽牌</button>
+            </div>
+
+            <div id="spreadResults" class="spread-grid"></div>
+        `;
+        document.getElementById('displayBoard').innerHTML = htmlContent;
+    }
+
+    function updateSpreadDesc() {
+        const selected = document.getElementById('spreadSelect').value;
+        document.getElementById('spreadDesc').innerText = SPREADS[selected].desc;
+        document.getElementById('spreadResults').innerHTML = ''; // 清空先前的抽牌結果
+    }
+
+    function drawSpreadCards() {
+        const selectedKey = document.getElementById('spreadSelect').value;
+        const spread = SPREADS[selectedKey];
+        const resultsContainer = document.getElementById('spreadResults');
+        resultsContainer.innerHTML = '';
+
+        // 隨機抽牌，且牌不能重複
+        let shuffled = [...TAROT_DATA].sort(() => 0.5 - Math.random());
+        
+        let gridHtml = '';
+        for (let i = 0; i < spread.positions.length; i++) {
+            const card = shuffled[i];
+            const isUpright = Math.random() > 0.5;
+            const orientation = isUpright ? "正位" : "逆位";
+            const imgClass = isUpright ? "tarot-img" : "tarot-img reversed-img";
+            const keywords = isUpright ? card.upright : card.reversed;
+
+            gridHtml += `
+                <div class="spread-card-box">
+                    <div class="spread-pos-title">${spread.positions[i]}</div>
+                    <img src="${card.img}" alt="${card.name}" class="${imgClass}">
+                    <div style="font-size:0.9rem; font-weight:bold; margin-top:5px;" class="highlight">${card.name} (${orientation})</div>
+                    <div style="font-size:0.8rem; color:var(--text-muted); margin-top:5px; text-align:left; line-height:1.4;">
+                        <strong>關鍵意：</strong>${keywords.split('、').slice(0,3).join('、')}...
+                    </div>
+                </div>
             `;
-
-            inner.appendChild(back);
-            inner.appendChild(front);
-            card.appendChild(inner);
-            tabletop.appendChild(card);
-
-            // 單擊事件：翻牌
-            card.addEventListener('click', () => {
-                if (card.dataset.dragging === 'true') return;
-                
-                card.classList.toggle('flipped');
-                const stateText = card.classList.contains('reversed') ? '逆位' : '正位';
-                const spreadContext = slotName ? ` [${slotName}]` : '';
-                
-                if (card.classList.contains('flipped')) {
-                    infoPanel.innerHTML = `🌟<strong>翻開${spreadContext}：</strong> ${data.name} (${stateText}) — <em>關鍵提示：${data.keyword}</em>`;
-                }
-            });
-
-            // 雙擊事件：旋轉 180 度（正/逆位）
-            card.addEventListener('dblclick', () => {
-                card.classList.toggle('reversed');
-                const stateText = card.classList.contains('reversed') ? '逆位' : '正位';
-                infoPanel.innerHTML = `🔄 <b>已變更正逆位</b>：${data.name} 切換為 <strong>${stateText}</strong>。`;
-            });
-
-            enableDrag(card);
         }
+        resultsContainer.innerHTML = gridHtml;
+    }
+</script>
 
-        // 拖曳模組（支援行動裝置觸控）
-        function enableDrag(elm) {
-            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-            elm.onmousedown = dragMouseDown;
-            elm.addEventListener('touchstart', dragTouchStart, { passive: false });
-
-            function dragMouseDown(e) {
-                e = e || window.event;
-                e.preventDefault();
-                elm.dataset.dragging = 'false';
-                pos3 = e.clientX;
-                pos4 = e.clientY;
-                document.onmouseup = closeDragElement;
-                document.onmousemove = elementDrag;
-                elm.style.zIndex = 100;
-            }
-
-            function elementDrag(e) {
-                e = e || window.event;
-                elm.dataset.dragging = 'true';
-                pos1 = pos3 - e.clientX;
-                pos2 = pos4 - e.clientY;
-                pos3 = e.clientX;
-                pos4 = e.clientY;
-                elm.style.top = `${elm.offsetTop - pos2}px`;
-                elm.style.left = `${elm.offsetLeft - pos1}px`;
-            }
-
-            function closeDragElement() {
-                document.onmouseup = null;
-                document.onmousemove = null;
-                setTimeout(() => {
-                    elm.style.zIndex = 5;
-                }, 100);
-            }
-
-            function dragTouchStart(e) {
-                elm.dataset.dragging = 'false';
-                const touch = e.touches[0];
-                pos3 = touch.clientX;
-                pos4 = touch.clientY;
-                elm.style.zIndex = 100;
-
-                const touchMove = (e) => {
-                    elm.dataset.dragging = 'true';
-                    const t = e.touches[0];
-                    pos1 = pos3 - t.clientX;
-                    pos2 = pos4 - t.clientY;
-                    pos3 = t.clientX;
-                    pos4 = t.clientY;
-                    elm.style.top = `${elm.offsetTop - pos2}px`;
-                    elm.style.left = `${elm.offsetLeft - pos1}px`;
-                };
-
-                const touchEnd = () => {
-                    document.removeEventListener('touchmove', touchMove);
-                    document.removeEventListener('touchend', touchEnd);
-                    setTimeout(() => {
-                        elm.style.zIndex = 5;
-                    }, 100);
-                };
-
-                document.addEventListener('touchmove', touchMove, { passive: false });
-                document.addEventListener('touchend', touchEnd);
-            }
-        }
-
-        drawSlots();
-    </script>
 </body>
 </html>
